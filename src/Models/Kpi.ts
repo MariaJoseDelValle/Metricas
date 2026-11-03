@@ -24,5 +24,5 @@ export type Kpi = {
   formula: string;
   nota: string;
   ruta?: string;
-  textoApoyo?: (detalle: Record<string, number>) => string;
+  textoApoyo?: (detalle: Record<string, number | string>) => string;
 };

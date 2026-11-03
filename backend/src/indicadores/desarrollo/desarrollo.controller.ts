@@ -1,9 +1,8 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { DesarrolloService } from './desarrollo.service.js';
-import { FiltrosKpi } from '../comun/filtros-kpi.js';
+import { validarFiltros } from '../comun/filtros-kpi.js';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiFiltrosKpi } from '../comun/api-filtros-kpi.decorator.js';
-const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
 @ApiTags('Indicadores · Desarrollo')
 @Controller('indicadores/desarrollo')
@@ -23,7 +22,7 @@ export class DesarrolloController {
     @Query('usuario') usuario?: string,
   ) {
     return this.desarrolloService.satisfaccion(
-      this.validarFiltros(desde, hasta, usuario),
+      validarFiltros(desde, hasta, usuario),
     );
   }
 
@@ -40,7 +39,7 @@ export class DesarrolloController {
     @Query('usuario') usuario?: string,
   ) {
     return this.desarrolloService.resolucionFallas(
-      this.validarFiltros(desde, hasta, usuario),
+      validarFiltros(desde, hasta, usuario),
     );
   }
 
@@ -57,36 +56,8 @@ export class DesarrolloController {
     @Query('usuario') usuario?: string,
   ) {
     return this.desarrolloService.tiempoResolucion(
-      this.validarFiltros(desde, hasta, usuario),
+      validarFiltros(desde, hasta, usuario),
     );
-  }
-
-  private validarFiltros(
-    desde?: string,
-    hasta?: string,
-    usuario?: string,
-  ): FiltrosKpi {
-    if (
-      !desde ||
-      !hasta ||
-      !FORMATO_FECHA.test(desde) ||
-      !FORMATO_FECHA.test(hasta)
-    ) {
-      throw new BadRequestException(
-        'Los parámetros "desde" y "hasta" son obligatorios, con formato AAAA-MM-DD.',
-      );
-    }
-    if (usuario !== undefined && !Number.isInteger(Number(usuario))) {
-      throw new BadRequestException(
-        'El parámetro "usuario" debe ser un número.',
-      );
-    }
-
-    return {
-      desde,
-      hasta,
-      usuario: usuario === undefined ? undefined : Number(usuario),
-    };
   }
 
   @ApiOperation({
@@ -101,8 +72,6 @@ export class DesarrolloController {
     @Query('hasta') hasta?: string,
     @Query('usuario') usuario?: string,
   ) {
-    return this.desarrolloService.todas(
-      this.validarFiltros(desde, hasta, usuario),
-    );
+    return this.desarrolloService.todas(validarFiltros(desde, hasta, usuario));
   }
 }

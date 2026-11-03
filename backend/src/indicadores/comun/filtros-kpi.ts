@@ -1,6 +1,7 @@
 import type { BaseDatosService } from '../../base-datos/base-datos.service.js';
-
+import { BadRequestException } from '@nestjs/common';
 const DEPARTAMENTO_TI = 7;
+const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
 export type Usuario = {
   id: number;
@@ -46,4 +47,29 @@ export function listarUsuarios(
     ORDER BY u."User_Name"`,
     [equipo],
   );
+}
+
+export function validarFiltros(
+  desde?: string,
+  hasta?: string,
+  usuario?: string,
+): FiltrosKpi {
+  if (
+    !desde ||
+    !hasta ||
+    !FORMATO_FECHA.test(desde) ||
+    !FORMATO_FECHA.test(hasta)
+  ) {
+    throw new BadRequestException(
+      'Los parámetros "desde" y "hasta" son obligatorios,con formato AAAA-MM-DD',
+    );
+  }
+  if (usuario !== undefined && !Number.isInteger(Number(usuario))) {
+    throw new BadRequestException('El parámetro "usuario" dede ser un número');
+  }
+  return {
+    desde,
+    hasta,
+    usuario: usuario === undefined ? undefined : Number(usuario),
+  };
 }

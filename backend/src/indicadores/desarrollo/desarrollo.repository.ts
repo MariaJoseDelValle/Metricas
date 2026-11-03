@@ -34,18 +34,16 @@ export class DesarrolloRepository {
   async sumarCalificaciones(
     filtros: FiltrosKpi,
   ): Promise<ConteoCalificaciones> {
-    const parametros: unknown[] = [filtros.desde, filtros.hasta];
-
-    let filtroUsuario = '';
-    if (filtros.usuario !== undefined) {
-      parametros.push(filtros.usuario);
-      filtroUsuario = `AND EXISTS (
-        SELECT 1 FROM "TBL_Resolution_Rating_Resolvers" rv
-        WHERE rv."Rating_ID" = rr."Rating_ID"
-          AND rv."Resolver_User_ID" = $3
-      )`;
-    }
-
+  const parametros: unknown[] = [filtros.desde, filtros.hasta];
+let condicionUsuario = '';
+if (filtros.usuario !== undefined) {
+  parametros.push(filtros.usuario);
+  condicionUsuario = `AND EXISTS (
+    SELECT 1 FROM "TBL_Resolution_Rating_Resolvers" rv
+    WHERE rv."Rating_ID" = rr."Rating_ID"
+      AND rv."Resolver_User_ID" = $${parametros.length}
+  )`;
+}
     const sql = `
       SELECT
         COUNT(*)::int                  AS calificaciones,
@@ -57,7 +55,7 @@ export class DesarrolloRepository {
         AND ${this.exclusion.condicion()}
         AND rr."Created_At" >= ($1::date)::timestamp AT TIME ZONE 'America/Bogota'
         AND rr."Created_At" <  ($2::date + 1)::timestamp AT TIME ZONE 'America/Bogota'
-        ${filtroUsuario}`;
+        ${condicionUsuario}`;
 
     const [fila] = await this.bd.consultar<ConteoCalificaciones>(
       sql,

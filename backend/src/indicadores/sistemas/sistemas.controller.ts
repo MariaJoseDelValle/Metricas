@@ -1,9 +1,8 @@
-import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { SistemasService } from './sistemas.service.js';
-import { FiltrosKpi } from '../comun/filtros-kpi.js';
+import { validarFiltros } from '../comun/filtros-kpi.js';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiFiltrosKpi } from '../comun/api-filtros-kpi.decorator.js';
-const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
 @ApiTags('Indicadores · Sistemas de Información')
 @Controller('indicadores/sistemas')
@@ -22,9 +21,7 @@ export class SistemasController {
     @Query('hasta') hasta?: string,
     @Query('usuario') usuario?: string,
   ) {
-    return this.sistemasService.soporte(
-      this.validarFiltros(desde, hasta, usuario),
-    );
+    return this.sistemasService.soporte(validarFiltros(desde, hasta, usuario));
   }
 
   @ApiOperation({
@@ -40,7 +37,7 @@ export class SistemasController {
     @Query('usuario') usuario?: string,
   ) {
     return this.sistemasService.disponibilidad(
-      this.validarFiltros(desde, hasta, usuario),
+      validarFiltros(desde, hasta, usuario),
     );
   }
 
@@ -57,36 +54,8 @@ export class SistemasController {
     @Query('usuario') usuario?: string,
   ) {
     return this.sistemasService.fallascriticas(
-      this.validarFiltros(desde, hasta, usuario),
+      validarFiltros(desde, hasta, usuario),
     );
-  }
-
-  private validarFiltros(
-    desde?: string,
-    hasta?: string,
-    usuario?: string,
-  ): FiltrosKpi {
-    if (
-      !desde ||
-      !hasta ||
-      !FORMATO_FECHA.test(desde) ||
-      !FORMATO_FECHA.test(hasta)
-    ) {
-      throw new BadRequestException(
-        'Los parámetros "desde" y "hasta" son obligatorios, con formato AAAA-MM-DD.',
-      );
-    }
-    if (usuario !== undefined && !Number.isInteger(Number(usuario))) {
-      throw new BadRequestException(
-        'El parámetro "usuario" debe ser un número.',
-      );
-    }
-
-    return {
-      desde,
-      hasta,
-      usuario: usuario === undefined ? undefined : Number(usuario),
-    };
   }
 
   @ApiOperation({
@@ -101,8 +70,6 @@ export class SistemasController {
     @Query('hasta') hasta?: string,
     @Query('usuario') usuario?: string,
   ) {
-    return this.sistemasService.todas(
-      this.validarFiltros(desde, hasta, usuario),
-    );
+    return this.sistemasService.todas(validarFiltros(desde, hasta, usuario));
   }
 }

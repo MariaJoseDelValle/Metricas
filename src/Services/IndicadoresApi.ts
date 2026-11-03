@@ -9,7 +9,7 @@ export type RespuestaKpi = {
   operador: OperadordeMeta;
   unidad: string;
   estado: EstadoKpi;
-  detalle: Record<string, number>;
+  detalle: Record<string, number | string>;
 };
 
 export type Periodo = {

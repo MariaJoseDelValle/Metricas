@@ -6,7 +6,6 @@ import {
   listarUsuarios,
   type FiltrosKpi,
 } from '../comun/filtros-kpi.js';
-import { TiempoResolucion } from '../desarrollo/desarrollo.repository.js';
 
 const EQUIPO_SISTEMAS = 3;
 const ETIQUETA_CASO_SOPORTE_SISTEMAS = 68;

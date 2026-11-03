@@ -10,6 +10,7 @@ import {
 } from "./Services/IndicadoresApi.ts";
 import Login from "./components/Login/Login.tsx";
 import "./App.css";
+import PageProcesos from "./components/Procesos/PageProcesos.tsx";
 
 function App() {
   const [sesionIniciada, setSesionIniciada] = useState(false);
@@ -39,11 +40,14 @@ function App() {
         />
       );
 
-    return (
-      <p className="app-en-construccion">
-        Indicadores de {areaActiva} en construcción
-      </p>
-    );
+    if (areaActiva === "Procesos")
+      return (
+        <PageProcesos
+          periodo={periodo}
+          usuario={usuario}
+          alRecibirUsuarios={setUsuarios}
+        />
+      );
   }
   return (
     <div className="app">

@@ -66,3 +66,9 @@ export function diasHabilesEntre(creado: string, cerrado: string): number {
 
   return total;
 }
+
+export function inicioTrimestre(fecha: string): string {
+  const [year, month] = fecha.split('-').map(Number);
+  const primerMes = Math.floor((month - 1) / 3) * 3 + 1;
+  return `${year}-${String(primerMes).padStart(2, '0')}-01`;
+}

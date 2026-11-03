@@ -41,9 +41,12 @@ export class SistemasService {
     const resultado =
       horasfuncionamiento === 0
         ? null
-        : ((horasfuncionamiento - fila.horasindisponibilidad) /
-            horasfuncionamiento) *
-          100;
+        : Math.max(
+            0,
+            ((horasfuncionamiento - fila.horasindisponibilidad) /
+              horasfuncionamiento) *
+              100,
+          );
     let estado: 'cumple' | 'no_cumple' | 'sin_datos' = 'sin_datos';
     if (resultado !== null) {
       estado = resultado >= META_DISPONIBILIDAD ? 'cumple' : 'no_cumple';

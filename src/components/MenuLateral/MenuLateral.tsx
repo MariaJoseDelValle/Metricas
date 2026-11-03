@@ -1,12 +1,6 @@
 import "./MenuLateral.css";
 
-const areas = [
-  "Desarrollo",
-  "Sistemas de Información",
-  "CRM",
-  "Procesos",
-  "Front",
-];
+const areas = ["Desarrollo", "Sistemas de Información", "CRM", "Procesos"];
 
 type MenuLateralProps = {
   areaActiva: string;
