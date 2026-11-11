@@ -1,11 +1,12 @@
 import PaginaKpis from "../PaginaKpi/PaginaKpi.tsx";
+import { GraficoLineas } from "../GraficasComunes/GraficoLineas.tsx";
 
 import { kpisDesarrollo } from "./kpisDesarrollo.ts";
 import type { Periodo, Usuario } from "../../Services/IndicadoresApi.ts";
 
 type PageDesarrolloProps = {
   periodo: Periodo;
-  usuario: number | null;
+  usuario: string | null;
   alRecibirUsuarios: (usuarios: Usuario[]) => void;
 };
 
@@ -23,6 +24,9 @@ function PageDesarrollo({
       usuario={usuario}
       periodo={periodo}
       alRecibirUsuarios={alRecibirUsuarios}
+      graficas={(_, kpis) =>
+        kpis.map((kpi) => <GraficoLineas key={kpi.id} kpi={kpi} />)
+      }
     />
   );
 }

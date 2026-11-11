@@ -5,9 +5,9 @@ import { CalendarDays, ChevronDown } from "lucide-react";
 type BarraSuperiorProps = {
   periodo: Periodo;
   alCambiarPeriodo: (periodo: Periodo) => void;
-  usuario: number | null;
+  usuario: string | null;
   usuarios: Usuario[];
-  alCambiarUsuario: (usuario: number | null) => void;
+  alCambiarUsuario: (usuario: string | null) => void;
 };
 
 function BarraSuperior({
@@ -53,9 +53,7 @@ function BarraSuperior({
           <select
             value={usuario ?? ""}
             onChange={(e) =>
-              alCambiarUsuario(
-                e.target.value === "" ? null : Number(e.target.value),
-              )
+              alCambiarUsuario(e.target.value === "" ? null : e.target.value)
             }
           >
             <option value="">Todos</option>

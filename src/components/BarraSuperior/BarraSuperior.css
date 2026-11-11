@@ -1,4 +1,7 @@
 .barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: flex-end;
   gap: 24px;

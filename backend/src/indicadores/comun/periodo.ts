@@ -1,6 +1,7 @@
 import { isHoliday } from 'colombian-holidays/isHoliday';
+import type { FiltrosKpi } from './filtros-kpi.js';
 
-// Se instala libreria para calular los festivos dee festivos sola.
+// Se instala libreria para calular los festivos
 
 export function contarDiasLaborales(desde: string, hasta: string): number {
   const [yearDesde, monthDesde, dayDesde] = desde.split('-').map(Number);
@@ -67,8 +68,49 @@ export function diasHabilesEntre(creado: string, cerrado: string): number {
   return total;
 }
 
-export function inicioTrimestre(fecha: string): string {
-  const [year, month] = fecha.split('-').map(Number);
-  const primerMes = Math.floor((month - 1) / 3) * 3 + 1;
-  return `${year}-${String(primerMes).padStart(2, '0')}-01`;
+export type Trimestre = {
+  desde: string;
+  hasta: string;
+};
+
+export function TrimestreComun(hasta: string): Trimestre {
+  const [year, month] = hasta.split('-').map(Number);
+  const primerMes = new Date(year, month - 3, 1);
+  const desde = `${primerMes.getFullYear()}-${String(primerMes.getMonth() + 1).padStart(2, '0')}-01`;
+  return { desde, hasta };
+}
+export async function tendencia<T extends { resultado: number | null }>(
+  filtros: FiltrosKpi,
+  calcular: (f: FiltrosKpi) => Promise<T>,
+) {
+  const aTexto = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+  const trimestre = TrimestreComun(filtros.hasta);
+  const [year, month] = trimestre.desde.split('-').map(Number);
+
+  const meses: Trimestre[] = [];
+  for (let i = 0; i < 3; i++) {
+    const inicio = new Date(year, month - 1 + i, 1);
+    const fin = new Date(year, month + i, 0);
+    meses.push({
+      desde: aTexto(inicio),
+      hasta: i === 2 ? filtros.hasta : aTexto(fin),
+    });
+  }
+
+  const [kpi, ...resultados] = await Promise.all([
+    calcular(filtros),
+    ...meses.map((m) =>
+      calcular({ ...filtros, desde: m.desde, hasta: m.hasta }),
+    ),
+  ]);
+
+  return {
+    ...kpi,
+    tendencia: meses.map((m, i) => ({
+      mes: m.desde,
+      valor: resultados[i].resultado,
+    })),
+  };
 }

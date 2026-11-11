@@ -1,0 +1,25 @@
+.tarjeta-kpi.tarjeta-grafica-lineas {
+  grid-row: auto;
+  grid-template-rows: auto 1fr;
+}
+
+.lineas-contenedor {
+  position: relative;
+  height: 260px;
+}
+
+.lineas-vacia {
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+/* 3 columnas fijas: cada gráfica cae debajo de su velocímetro */
+.pantalla-tarjetas:has(.tarjeta-grafica-lineas) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+  .pantalla-tarjetas:has(.tarjeta-grafica-lineas) {
+    grid-template-columns: 1fr;
+  }
+}

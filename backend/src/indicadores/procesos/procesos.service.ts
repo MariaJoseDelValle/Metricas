@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { inicioTrimestre } from '../comun/periodo.js';
+import { TrimestreComun } from '../comun/periodo.js';
 import { ProcesosRepository } from '../procesos/procesos.repository.js';
 import type { FiltrosKpi } from '../comun/filtros-kpi.js';
 
@@ -55,7 +55,7 @@ export class ProcesosService {
     };
   }
   async mejoras(filtros: FiltrosKpi) {
-    const trimestre = { ...filtros, desde: inicioTrimestre(filtros.hasta) };
+    const trimestre = { ...filtros, ...TrimestreComun(filtros.hasta) };
     const fila = await this.repositorio.mejoras(trimestre);
     const resultado =
       fila.ticketsEntregados === 0

@@ -1,5 +1,5 @@
 import { Bug, Smile, Clock } from "lucide-react";
-
+import { Velocimetro } from "../GraficasComunes/Velocimetro.tsx";
 import type { Kpi } from "../../Models/Kpi.ts";
 
 export const kpisDesarrollo: Kpi[] = [
@@ -11,15 +11,18 @@ export const kpisDesarrollo: Kpi[] = [
     meta: 3,
     unidad: "días",
     operador: "<=",
-    color: "#f59e0b",
+    color: "#eee01d",
     icono: Clock,
     fuente: "PRISMA",
+    maximo: 10,
     formula:
       "Promedio  de tiempo de resolucion entre Fecha creación y Fecha cierre",
     nota: 'Solo tickets "Caso de soporte" cerrados, filtrados por fecha de cierre',
     apoyo: { etiqueta: "Tickets cerrados", valor: "—" },
     ruta: "desarrollo/tiempo-resolucion",
     textoApoyo: (d) => `${d.ticketsCerrados} tickets cerrados`,
+
+    grafica: Velocimetro,
   },
   {
     id: "resolucion-fallas",
@@ -38,6 +41,8 @@ export const kpisDesarrollo: Kpi[] = [
     ruta: "desarrollo/resolucion-fallas",
     textoApoyo: (d) =>
       `${d.ticketsFallas} fallas de ${d.ticketsTotales} tickets`,
+
+    grafica: Velocimetro,
   },
   {
     id: "satisfaccion",
@@ -50,11 +55,14 @@ export const kpisDesarrollo: Kpi[] = [
     color: "#10b981",
     icono: Smile,
     fuente: "PRISMA",
+    maximo: 5,
 
     formula: "Suma de calificaciones (1 a 5) / N.º de respuestas",
     nota: "Calificación de la Solución",
     apoyo: { etiqueta: "Muestra", valor: "—" }, // satisfacción
     ruta: "desarrollo/satisfaccion",
     textoApoyo: (d) => `${d.calificaciones} calificaciones`,
+
+    grafica: Velocimetro,
   },
 ];

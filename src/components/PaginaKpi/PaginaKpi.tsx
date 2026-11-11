@@ -1,5 +1,5 @@
 import type { Kpi } from "../../Models/Kpi.ts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import TarjetaKpi from "../TarjetaKpi/TarjetaKpi.tsx";
 import "./PaginaKpi.css";
 import {
@@ -13,21 +13,24 @@ type PaginaKpisProps = {
   titulo: string;
   subtitulo: string;
   area: string;
-
+  graficas?: (datos: RespuestaKpi[], kpisCombinados: Kpi[]) => ReactNode;
   kpis: Kpi[];
+
   periodo: Periodo;
-  usuario: number | null;
+  usuario: string | null;
   alRecibirUsuarios: (usuarios: Usuario[]) => void;
 };
 
-function combinar(kpi: Kpi, respuesta: RespuestaKpi): Kpi {
+export function combinar(kpi: Kpi, respuesta: RespuestaKpi): Kpi {
   return {
     ...kpi,
     resultado: respuesta.resultado,
     estado: respuesta.estado,
     meta: respuesta.meta,
     operador: respuesta.operador,
-    apoyo: {
+    detalle: respuesta.detalle,
+    tendencia: respuesta.tendencia,
+    apoyo: kpi.apoyo && {
       ...kpi.apoyo,
       valor: kpi.textoApoyo
         ? kpi.textoApoyo(respuesta.detalle)
@@ -43,15 +46,18 @@ function PaginaKpis({
   kpis,
   periodo,
   usuario,
+  graficas,
   alRecibirUsuarios,
 }: PaginaKpisProps) {
   const [kpisconDatos, setKpisConDatos] = useState<Kpi[]>(kpis);
   const [error, setError] = useState<string | null>(null);
+  const [datos, setDatos] = useState<RespuestaKpi[]>([]);
   useEffect(() => {
     let cancelado = false;
     obtenerArea(area, periodo, usuario)
       .then((respuesta) => {
         if (cancelado) return;
+        setDatos(respuesta.kpis);
         setKpisConDatos(
           kpis.map((kpi) => {
             const datos = respuesta.kpis.find((r) => r.id === kpi.id);
@@ -81,6 +87,8 @@ function PaginaKpis({
         {kpisconDatos.map((kpi) => (
           <TarjetaKpi key={kpi.id} kpi={kpi} />
         ))}
+
+        {graficas?.(datos, kpisconDatos)}
       </div>
     </section>
   );

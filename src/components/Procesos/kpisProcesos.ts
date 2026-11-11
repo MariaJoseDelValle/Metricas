@@ -1,5 +1,6 @@
 import { File, Undo2, ArrowUpRight } from "lucide-react";
 import type { Kpi } from "../../Models/Kpi";
+import { Velocimetro } from "../GraficasComunes/Velocimetro";
 
 // "2026-10-01" → "01/10"
 const diaMes = (fecha: number | string) =>
@@ -23,6 +24,8 @@ export const kpisProcesos: Kpi[] = [
     ruta: "procesos/documentacion-procesos",
     textoApoyo: (d) =>
       `${d.ticketsEstandarizados} estandarizados de ${d.ticketsPlanificados} planificados`,
+
+    grafica: Velocimetro,
   },
   {
     id: "cumplimiento-entregables",
@@ -42,6 +45,8 @@ export const kpisProcesos: Kpi[] = [
     ruta: "procesos/cumplimiento-entregables",
     textoApoyo: (d) =>
       `${d.ticketsCompletados} completados de ${d.ticketsComprometidos} tickets`,
+
+    grafica: Velocimetro,
   },
 
   {
@@ -61,6 +66,8 @@ export const kpisProcesos: Kpi[] = [
     ruta: "procesos/devolucion",
     textoApoyo: (d) =>
       `${d.ticketsDevueltos} devueltos de ${d.ticketsPresentados} presentados `,
+
+    grafica: Velocimetro,
   },
 
   {
@@ -76,9 +83,11 @@ export const kpisProcesos: Kpi[] = [
     fuente: "PRISMA",
     formula: "Mejoras implementadas/ Mejoras entregadas x 100",
     nota: 'Tickets con la etiqueta "Entregado" e "Implementado".',
-    apoyo: { etiqueta: "Acumulado del trimestre", valor: "—" },
+    apoyo: { etiqueta: "Acumulado del trimestral", valor: "—" },
     ruta: "procesos/mejoras-implementadas",
     textoApoyo: (d) =>
       `${d.ticketsImplementados} implementadas de ${d.ticketsEntregados} entregadas (${diaMes(d.desde)} – ${diaMes(d.hasta)})`,
+
+    grafica: Velocimetro,
   },
 ];

@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 import { SistemasRepository } from './sistemas.repository.js';
 import type { FiltrosKpi } from '../comun/filtros-kpi.js';
-import { contarDiasLaborales, contarMeses } from '../comun/periodo.js';
+import {
+  contarDiasLaborales,
+  contarMeses,
+  tendencia,
+} from '../comun/periodo.js';
 
 const META_FALLAS_CRITICAS = 100;
 const HORAS_DISPONIBLE_MES = 20;
@@ -99,10 +103,11 @@ export class SistemasService {
   async todas(filtros: FiltrosKpi) {
     const [kpis, usuarios] = await Promise.all([
       Promise.all([
-        this.disponibilidad(filtros),
-        this.fallascriticas(filtros),
-        this.soporte(filtros),
+        tendencia(filtros, (f) => this.disponibilidad(f)),
+        tendencia(filtros, (f) => this.fallascriticas(f)),
+        tendencia(filtros, (f) => this.soporte(f)),
       ]),
+
       this.repositorio.usuarios(),
     ]);
     return { kpis, usuarios };

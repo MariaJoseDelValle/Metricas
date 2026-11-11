@@ -1,5 +1,6 @@
 import { Headset, Server, Timer } from "lucide-react";
 import type { Kpi } from "../../Models/Kpi.ts";
+import { Velocimetro } from "../GraficasComunes/Velocimetro.tsx";
 
 export const kpisSistemasInformacion: Kpi[] = [
   {
@@ -19,6 +20,8 @@ export const kpisSistemasInformacion: Kpi[] = [
     ruta: "sistemas/disponibilidad",
     textoApoyo: (d) =>
       `${d.horasindisponibilidad ?? 0} h de corrección de ${d.horasfuncionamiento} h`,
+
+    grafica: Velocimetro,
   },
   {
     id: "resolucion-fallas-criticas",
@@ -38,6 +41,8 @@ export const kpisSistemasInformacion: Kpi[] = [
     ruta: "sistemas/resolucion-fallas-criticas",
     textoApoyo: (d) =>
       `${d.horasSolucion ?? 0} h de ${d.horasDisponibles} h disponibles`,
+
+    grafica: Velocimetro,
   },
   {
     id: "soporte-funcional",
@@ -56,5 +61,7 @@ export const kpisSistemasInformacion: Kpi[] = [
     apoyo: { etiqueta: "Solicitudes del período", valor: "—" },
     ruta: "sistemas/soporte-funcional",
     textoApoyo: (d) => `${d.atendidos} atendidas de ${d.recibidos} recibidas`,
+
+    grafica: Velocimetro,
   },
 ];

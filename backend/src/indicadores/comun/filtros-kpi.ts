@@ -1,5 +1,6 @@
 import type { BaseDatosService } from '../../base-datos/base-datos.service.js';
 import { BadRequestException } from '@nestjs/common';
+
 const DEPARTAMENTO_TI = 7;
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -72,4 +73,15 @@ export function validarFiltros(
     hasta,
     usuario: usuario === undefined ? undefined : Number(usuario),
   };
+}
+
+export type FiltrosListo = Omit<FiltrosKpi, 'usuario'> & { usuario?: string };
+export function filtroResolutorListo(
+  parametros: unknown[],
+  correo?: string,
+): string {
+  if (!correo) return '';
+
+  parametros.push(correo.trim().toLowerCase());
+  return `AND LOWER(TRIM(t.ticket_solvi_correo_resolutor)) = $${parametros.length}`;
 }

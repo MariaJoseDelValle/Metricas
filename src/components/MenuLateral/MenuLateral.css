@@ -1,5 +1,11 @@
 .menu-lateral {
   width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  align-self: flex-start;
+  overflow-y: auto;
   background: var(--morado-oscuro);
   color: var(--blanco);
   padding: 24px 16px;
@@ -35,7 +41,9 @@
 }
 
 .menu-lateral-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   padding: 10px 12px;
   border: none;
@@ -46,6 +54,7 @@
   font-size: 14px;
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .menu-lateral-item:hover {
@@ -65,4 +74,7 @@
   padding: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 14px;
+}
+.menu-lateral-icon {
+  flex-shrink: 0;
 }

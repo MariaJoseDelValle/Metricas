@@ -1,4 +1,4 @@
-import type { EstadoKpi, OperadordeMeta } from "../Models/Kpi.ts";
+import type { EstadoKpi, OperadordeMeta, PuntoSerie } from "../Models/Kpi.ts";
 
 // Lo que responde el backend por cada indicador.
 export type RespuestaKpi = {
@@ -10,6 +10,8 @@ export type RespuestaKpi = {
   unidad: string;
   estado: EstadoKpi;
   detalle: Record<string, number | string>;
+  serie?: MesSerie[];
+  tendencia?: PuntoSerie[];
 };
 
 export type Periodo = {
@@ -18,18 +20,23 @@ export type Periodo = {
 };
 
 export type Usuario = {
-  id: number;
+  id: number | string;
   nombre: string;
 };
 export type RespuestaArea = {
   kpis: RespuestaKpi[];
   usuarios: Usuario[];
 };
+export type MesSerie = {
+  mes: string;
+  creados: number;
+  cerrados: number;
+};
 
 export async function obtenerArea(
   area: string,
   periodo: Periodo,
-  usuario: number | null,
+  usuario: string | null,
 ): Promise<RespuestaArea> {
   const parametros = new URLSearchParams({
     desde: periodo.desde,

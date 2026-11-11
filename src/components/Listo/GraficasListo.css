@@ -1,0 +1,253 @@
+.medidor-general {
+  display: contents;
+}
+
+.tarjeta-kpi-cifras:has(.medidor-general) {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px 16px;
+}
+
+.medidor-dona {
+  position: relative;
+  height: 150px;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.medidor-valor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.tarjeta-kpi-cifras:has(.medidor-general) .tarjeta-kpi-estado {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.medidor-cuadros {
+  display: flex;
+  gap: 8px;
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.medidor-cuadros div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--fondo);
+}
+
+.medidor-cuadros span {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.medidor-cuadros strong {
+  font-size: 24px;
+}
+
+.pantalla-tarjetas:has(.tarjeta-grafica-ans) {
+  grid-template-columns: 1fr 2fr;
+  grid-auto-rows: auto;
+}
+
+.pantalla-tarjetas:has(.tarjeta-grafica-ans) > .tarjeta-kpi:first-child {
+  grid-column: 1;
+  grid-row: 1;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.tarjeta-kpi.tarjeta-grafica-ans {
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* Mini tarjetas ANS dentro del recuadro de la gráfica */
+.seccion-tarjetas-mini {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+.mini-tarjeta-wrapper {
+  display: flex;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi {
+  flex: 1;
+  align-content: start;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi {
+  grid-row: auto;
+  grid-template-rows: auto;
+  row-gap: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border-top-width: 3px;
+  box-shadow: none;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-encabezado {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-icono {
+  display: none;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-nombre {
+  font-size: 10px;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-meta {
+  display: none;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-resultado {
+  font-size: 16px;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-unidad {
+  font-size: 11px;
+}
+
+.seccion-tarjetas-mini .tarjeta-kpi-estado {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+.seccion-tarjetas-mini
+  :is(.tarjeta-kpi-formula, .tarjeta-kpi-progreso, .tarjeta-kpi-apoyo) {
+  display: none;
+}
+
+.barras-ans {
+  position: relative;
+  min-height: 260px;
+}
+/* Tarjeta de la dona: debajo de Cumplimiento General */
+.tarjeta-kpi.tarjeta-grafica-abiertos {
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-rows: auto 1fr auto;
+}
+
+.dona-leyenda {
+  display: grid;
+  gap: 14px;
+}
+
+.leyenda-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.leyenda-nombre {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dona-punto {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--color-kpi);
+}
+.leyenda-cifras {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--texto);
+}
+
+.leyenda-barra {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--borde);
+}
+
+.leyenda-barra-relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-kpi);
+}
+/* Dona a la izquierda, barras a la derecha */
+.dona-contenido {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.dona-abiertos {
+  position: relative;
+  height: 220px;
+}
+
+.dona-vacia {
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+.dona-cuadros {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.dona-cuadros > div {
+  flex: 0 0 auto;
+  min-width: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--fondo);
+}
+
+.dona-cuadros span {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.dona-cuadros strong {
+  font-size: 20px;
+}
+
+.tarjeta-kpi.tarjeta-grafica-creados {
+  grid-column: 2;
+  grid-row: 2;
+  grid-template-rows: auto 1fr;
+}
+
+.linea-creados {
+  position: relative;
+  height: 260px;
+}

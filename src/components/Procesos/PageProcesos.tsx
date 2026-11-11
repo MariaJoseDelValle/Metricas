@@ -1,10 +1,10 @@
 import PaginaKpis from "../PaginaKpi/PaginaKpi";
 import { kpisProcesos } from "./kpisProcesos";
 import type { Periodo, Usuario } from "../../Services/IndicadoresApi";
-
+import { GraficaGeneral } from "./GraficasProcesos";
 type PageProcesosProps = {
   periodo: Periodo;
-  usuario: number | null;
+  usuario: string | null;
   alRecibirUsuarios: (usuarios: Usuario[]) => void;
 };
 
@@ -22,6 +22,7 @@ function PageProcesos({
       usuario={usuario}
       periodo={periodo}
       alRecibirUsuarios={alRecibirUsuarios}
+      graficas={(_, kpisConDatos) => <GraficaGeneral kpis={kpisConDatos} />}
     />
   );
 }

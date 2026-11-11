@@ -2,62 +2,32 @@ import MenuLateral from "./components/MenuLateral/MenuLateral.tsx";
 import BarraSuperior from "./components/BarraSuperior/BarraSuperior.tsx";
 import PageDesarrollo from "./components/Desarrollo/PageDesarrollo.tsx";
 import PageSistemasInformacion from "./components/SistemasInformacion/PageSistemasInformacion.tsx";
-import { useState } from "react";
+import PageListo from "./components/Listo/PageListo.tsx";
+import { useState, useEffect } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import {
   type Periodo,
   periodoMesActual,
   type Usuario,
 } from "./Services/IndicadoresApi.ts";
-import Login from "./components/Login/Login.tsx";
+
 import "./App.css";
 import PageProcesos from "./components/Procesos/PageProcesos.tsx";
 
 function App() {
-  const [sesionIniciada, setSesionIniciada] = useState(false);
-  const [areaActiva, setAreaActiva] = useState("Desarrollo");
-  const [periodo, setPeriodo] = useState<Periodo>(periodoMesActual);
-  const [usuario, setUsuario] = useState<number | null>(null);
+  const [periodo, setPeriodo] = useState<Periodo>(periodoMesActual());
+  const [usuario, setUsuario] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  if (!sesionIniciada) {
-    return <Login alIniciarSesion={() => setSesionIniciada(true)} />;
-  }
+  const { pathname } = useLocation();
 
-  function mostrarPantalla() {
-    if (areaActiva === "Desarrollo")
-      return (
-        <PageDesarrollo
-          periodo={periodo}
-          usuario={usuario}
-          alRecibirUsuarios={setUsuarios}
-        />
-      );
-    if (areaActiva === "Sistemas de Información")
-      return (
-        <PageSistemasInformacion
-          periodo={periodo}
-          usuario={usuario}
-          alRecibirUsuarios={setUsuarios}
-        />
-      );
+  useEffect(() => {
+    setUsuario(null);
+  }, [pathname]);
+  const props = { periodo, usuario, alRecibirUsuarios: setUsuarios };
 
-    if (areaActiva === "Procesos")
-      return (
-        <PageProcesos
-          periodo={periodo}
-          usuario={usuario}
-          alRecibirUsuarios={setUsuarios}
-        />
-      );
-  }
   return (
     <div className="app">
-      <MenuLateral
-        areaActiva={areaActiva}
-        alCambiarArea={(area) => {
-          setAreaActiva(area);
-          setUsuario(null);
-        }}
-      />
+      <MenuLateral />
       <div className="app-principal">
         <BarraSuperior
           periodo={periodo}
@@ -66,7 +36,21 @@ function App() {
           usuarios={usuarios}
           alCambiarUsuario={setUsuario}
         />
-        <main className="app-contenido">{mostrarPantalla()}</main>
+        <main className="app-contenido">
+          <Routes>
+            <Route path="/desarrollo" element={<PageDesarrollo {...props} />} />
+            <Route
+              path="/sistemas"
+              element={<PageSistemasInformacion {...props} />}
+            />
+            <Route path="/crm" element={<p> Próximamente</p>} />
+
+            <Route path="/procesos" element={<PageProcesos {...props} />} />
+            <Route path="/listo" element={<PageListo {...props} />} />
+            <Route path="/" element={<Navigate to="/desarrollo" replace />} />
+            <Route path="*" element={<p>Página no encontrada</p>} />
+          </Routes>
+        </main>
       </div>
     </div>
   );

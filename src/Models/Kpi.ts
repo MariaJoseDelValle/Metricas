@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 
 export type EstadoKpi = "cumple" | "no_cumple" | "sin_datos";
 
@@ -7,6 +8,10 @@ export type OperadordeMeta = ">" | ">=" | "<" | "<=";
 export type ApoyoKpi = {
   etiqueta: string;
   valor: string;
+};
+export type PuntoSerie = {
+  mes: string;
+  valor: number | null;
 };
 
 export type Kpi = {
@@ -20,9 +25,13 @@ export type Kpi = {
   color: string;
   icono: LucideIcon;
   fuente: string;
-  apoyo: ApoyoKpi;
+  apoyo?: ApoyoKpi;
   formula: string;
   nota: string;
+  detalle?: Record<string, number | string>;
   ruta?: string;
+  maximo?: number;
+  tendencia?: PuntoSerie[];
+  grafica?: ComponentType<{ kpi: Kpi }>;
   textoApoyo?: (detalle: Record<string, number | string>) => string;
 };
