@@ -21,7 +21,7 @@ export const kpisProcesos: Kpi[] = [
     formula: "Procesos estandarizados/Procesos Planificados x 100",
     nota: 'Tickets con la etiqueta "Estandarizado" y"Planificado.',
     apoyo: { etiqueta: "Tickets del período", valor: "—" },
-    ruta: "procesos/documentacion-procesos",
+
     textoApoyo: (d) =>
       `${d.ticketsEstandarizados} estandarizados de ${d.ticketsPlanificados} planificados`,
 
@@ -42,7 +42,7 @@ export const kpisProcesos: Kpi[] = [
       "Entregables completados en el mes/Entregables comprometidos para el mes x 100",
     nota: 'Tickets con la etiqueta "Diagrama de flujo", "Reglas de negocio" o "Prototipo".',
     apoyo: { etiqueta: "Tickets del período", valor: "—" },
-    ruta: "procesos/cumplimiento-entregables",
+
     textoApoyo: (d) =>
       `${d.ticketsCompletados} completados de ${d.ticketsComprometidos} tickets`,
 
@@ -63,7 +63,7 @@ export const kpisProcesos: Kpi[] = [
     formula: "Cantidad de devoluciones/ Total de entregables presentados x 100",
     nota: 'Entregables con la etiqueta "Devolución Documento". Ideal <= 15%, tolerable hasta 20%.',
     apoyo: { etiqueta: "Tickets del período", valor: "—" },
-    ruta: "procesos/devolucion",
+
     textoApoyo: (d) =>
       `${d.ticketsDevueltos} devueltos de ${d.ticketsPresentados} presentados `,
 
@@ -84,7 +84,7 @@ export const kpisProcesos: Kpi[] = [
     formula: "Mejoras implementadas/ Mejoras entregadas x 100",
     nota: 'Tickets con la etiqueta "Entregado" e "Implementado".',
     apoyo: { etiqueta: "Acumulado del trimestral", valor: "—" },
-    ruta: "procesos/mejoras-implementadas",
+
     textoApoyo: (d) =>
       `${d.ticketsImplementados} implementadas de ${d.ticketsEntregados} entregadas (${diaMes(d.desde)} – ${diaMes(d.hasta)})`,
 

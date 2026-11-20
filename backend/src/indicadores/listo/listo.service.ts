@@ -5,6 +5,12 @@ import type { FiltrosListo } from '../comun/filtros-kpi.js';
 
 const META_GENERAL = 85;
 const META_ANS = 85;
+const SIN_RESOLUTOR = { correo: 'sin-resolutor', nombre: 'Sin resolutor' };
+type CumplimientoANS = {
+  cumplimiento: number;
+  ticketsTotal: number;
+  ticketsATiempo: number;
+} | null;
 
 @Injectable()
 export class ListoService {
@@ -36,30 +42,84 @@ export class ListoService {
     };
   }
 
-  async ANS(filtros: FiltrosListo, nivel: number) {
-    const fila = await this.repositorio.ANS(filtros, nivel);
-    const resultado =
-      fila.ticketsTotal === 0
-        ? null
-        : (fila.ticketsATiempo / fila.ticketsTotal) * 100;
-    let estado: 'cumple' | 'no_cumple' | 'sin_datos' = 'sin_datos';
-    if (resultado !== null) {
-      estado = resultado >= META_ANS ? 'cumple' : 'no_cumple';
-    }
-    return {
-      id: `cumplimiento-ANS${nivel}`,
-      nombre: `Cumplimiento ANS ${nivel}`,
-      resultado: resultado === null ? null : Math.round(resultado * 100) / 100,
-      meta: META_ANS,
-      operador: '>=',
-      unidad: '%',
-      estado,
-      detalle: {
+  // Una sola consulta alimenta los KPIs de ANS 1–5 (suma de todas las filas,
+  // sin filtro de estado) y la gráfica por persona (con filtro de estado).
+  async ANS(filtros: FiltrosListo) {
+    const filas = await this.repositorio.ANSPorPersona(filtros);
+
+    const globales = [1, 2, 3, 4, 5].map(() => ({
+      ticketsTotal: 0,
+      ticketsATiempo: 0,
+    }));
+    const personas = new Map<
+      string,
+      { correo: string; nombre: string; ans: CumplimientoANS[] }
+    >();
+
+    for (const fila of filas) {
+      const nivel = Number(fila.ans.replace('ANS', '').trim());
+
+      globales[nivel - 1].ticketsTotal += fila.globalTotal;
+      globales[nivel - 1].ticketsATiempo += fila.globalATiempo;
+
+      if (fila.ticketsTotal === 0) continue;
+
+      const correo = fila.correo ?? SIN_RESOLUTOR.correo;
+      let persona = personas.get(correo);
+      if (!persona) {
+        persona = {
+          correo,
+          nombre: fila.nombre ?? SIN_RESOLUTOR.nombre,
+          ans: [null, null, null, null, null],
+        };
+        personas.set(correo, persona);
+      }
+
+      persona.ans[nivel - 1] = {
+        cumplimiento:
+          Math.round((fila.ticketsATiempo / fila.ticketsTotal) * 10000) / 100,
         ticketsTotal: fila.ticketsTotal,
         ticketsATiempo: fila.ticketsATiempo,
-      },
+      };
+    }
+
+    const kpisANS = globales.map((g, i) => {
+      const nivel = i + 1;
+      const resultado =
+        g.ticketsTotal === 0 ? null : (g.ticketsATiempo / g.ticketsTotal) * 100;
+      let estado: 'cumple' | 'no_cumple' | 'sin_datos' = 'sin_datos';
+      if (resultado !== null) {
+        estado = resultado >= META_ANS ? 'cumple' : 'no_cumple';
+      }
+      return {
+        id: `cumplimiento-ANS${nivel}`,
+        nombre: `Cumplimiento ANS ${nivel}`,
+        resultado:
+          resultado === null ? null : Math.round(resultado * 100) / 100,
+        meta: META_ANS,
+        operador: '>=',
+        unidad: '%',
+        estado,
+        detalle: g,
+      };
+    });
+
+    const lista = [...personas.values()];
+    const porPersona = {
+      id: 'ans-por-persona',
+      nombre: 'Cumplimiento ANS por persona',
+      resultado: lista.length === 0 ? null : lista.length,
+      meta: META_ANS,
+      operador: '>=' as const,
+      unidad: '%',
+      estado: 'sin_datos' as const,
+      detalle: {},
+      personas: lista,
     };
+
+    return { kpisANS, porPersona };
   }
+
   async ConteoCreados(filtros: FiltrosListo) {
     const trimestre = TrimestreComun(filtros.hasta);
     const serie = await this.repositorio.ConteoCreados({
@@ -88,19 +148,20 @@ export class ListoService {
   }
 
   async todas(filtros: FiltrosListo) {
-    const [kpis, usuarios] = await Promise.all([
-      Promise.all([
-        this.general(filtros),
-        this.ANS(filtros, 1),
-        this.ANS(filtros, 2),
-        this.ANS(filtros, 3),
-        this.ANS(filtros, 4),
-        this.ANS(filtros, 5),
-        this.Abiertos(filtros),
-        this.ConteoCreados(filtros),
-      ]),
+    const [general, ans, abiertos, creados, usuarios] = await Promise.all([
+      this.general(filtros),
+      this.ANS(filtros),
+      this.Abiertos(filtros),
+      this.ConteoCreados(filtros),
       this.repositorio.usuarios(filtros),
     ]);
+    const kpis = [
+      general,
+      ...ans.kpisANS,
+      abiertos,
+      creados,
+      ans.porPersona,
+    ];
     return { kpis, usuarios };
   }
 

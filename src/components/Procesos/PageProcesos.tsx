@@ -1,27 +1,16 @@
 import PaginaKpis from "../PaginaKpi/PaginaKpi";
 import { kpisProcesos } from "./kpisProcesos";
-import type { Periodo, Usuario } from "../../Services/IndicadoresApi";
+import type { FiltrosPagina } from "../Filtros/FiltrosComunes.tsx";
 import { GraficaGeneral } from "./GraficasProcesos";
-type PageProcesosProps = {
-  periodo: Periodo;
-  usuario: string | null;
-  alRecibirUsuarios: (usuarios: Usuario[]) => void;
-};
 
-function PageProcesos({
-  periodo,
-  usuario,
-  alRecibirUsuarios,
-}: PageProcesosProps) {
+function PageProcesos(filtros: FiltrosPagina) {
   return (
     <PaginaKpis
+      {...filtros}
       titulo="KPIs y Métricas — Procesos"
       subtitulo="Documentacion de procesos,Cumplimiento de entregables,Devolución, Mejoras implementadas."
       area="procesos"
       kpis={kpisProcesos}
-      usuario={usuario}
-      periodo={periodo}
-      alRecibirUsuarios={alRecibirUsuarios}
       graficas={(_, kpisConDatos) => <GraficaGeneral kpis={kpisConDatos} />}
     />
   );

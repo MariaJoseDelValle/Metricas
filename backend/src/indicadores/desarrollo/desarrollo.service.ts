@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DesarrolloRepository } from './desarrollo.repository.js';
 import type { FiltrosKpi } from '../comun/filtros-kpi.js';
 import { diasHabilesEntre, tendencia } from '../comun/periodo.js';
+import { ETIQUETAS_PROYECTO_DESARROLLO } from './etiquetas-proyecto.js';
 
 const META_SATISFACCION = 4;
 
@@ -97,6 +98,6 @@ export class DesarrolloService {
 
       this.repositorio.usuarios(),
     ]);
-    return { kpis, usuarios };
+    return { kpis, usuarios, etiquetas: ETIQUETAS_PROYECTO_DESARROLLO };
   }
 }

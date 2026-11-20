@@ -1,10 +1,10 @@
 import "./MenuLateral.css";
-import { Code, Database, Users, Workflow, MonitorCog } from "lucide-react";
+import { Code, Database, Workflow, MonitorCog } from "lucide-react";
 import { NavLink } from "react-router";
 const areas = [
   { path: "/desarrollo", label: "Desarrollo", icon: Code },
   { path: "/sistemas", label: "Sistemas de Información", icon: Database },
-  { path: "/crm", label: "CRM", icon: Users },
+
   { path: "/procesos", label: "Procesos", icon: Workflow },
   { path: "/listo", label: "Listo", icon: MonitorCog },
 ];

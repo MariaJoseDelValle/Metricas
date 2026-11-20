@@ -2,16 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { BaseDatosService } from '../../base-datos/base-datos.service.js';
 import { ExclusionEstandarService } from '../comun/exclusion-estandar.service.js';
 import {
+  filtroEtiqueta,
   filtroUsuario,
   listarUsuarios,
   type FiltrosKpi,
 } from '../comun/filtros-kpi.js';
+
+export type EtiquetaSistemas = {
+  id: number;
+  nombre: string;
+};
 
 const EQUIPO_SISTEMAS = 3;
 const ETIQUETA_CASO_SOPORTE_SISTEMAS = 68;
 const COLUMNAS_ATENDIDA = [6, 7, 8, 9, 10];
 const ETIQUETA_DISPO_SERVICIOS_CRITICOS = 232;
 const ETIQUETAS_FALLAS_CRITICAS = [76, 79];
+// "Bloqueada" no se ofrece en el filtro de etiquetas.
+const ETIQUETA_BLOQUEADA_SISTEMAS = 77;
 
 export type ConteoSoporte = {
   recibidas: number;
@@ -36,9 +44,23 @@ export class SistemasRepository {
     return listarUsuarios(this.bd, EQUIPO_SISTEMAS);
   }
 
+  // Todas las etiquetas del equipo de Sistemas, leídas de PRISMA para que
+  // las nuevas aparezcan en el filtro sin cambiar código.
+  etiquetas(): Promise<EtiquetaSistemas[]> {
+    return this.bd.consultar<EtiquetaSistemas>(
+      `
+      SELECT l."Label_ID" AS id, TRIM(l."Label_Name") AS nombre
+      FROM "TBL_Labels" l
+      WHERE l."Label_Team_ID" = ${EQUIPO_SISTEMAS}
+        AND l."Label_ID" <> ${ETIQUETA_BLOQUEADA_SISTEMAS}
+      ORDER BY TRIM(l."Label_Name")`,
+    );
+  }
+
   async contarSolicitudesSoporte(filtros: FiltrosKpi): Promise<ConteoSoporte> {
     const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroUsuario(parametros, filtros.usuario);
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
     const sql = `
            SELECT
   COUNT(*)::int AS recibidas,
@@ -61,7 +83,8 @@ WHERE rt."Request_Team_ID" = ${EQUIPO_SISTEMAS}
  
   AND r."Request_Created_At" >= $1::date
       AND r."Request_Created_At" < $2::date + 1
-      ${condicionUsuario}`;
+      ${condicionUsuario}
+        ${condicionEtiqueta}`;
 
     const [fila] = await this.bd.consultar<ConteoSoporte>(sql, parametros);
     return fila;
@@ -72,6 +95,7 @@ WHERE rt."Request_Team_ID" = ${EQUIPO_SISTEMAS}
   ): Promise<DispoServiciosCriticos> {
     const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroUsuario(parametros, filtros.usuario);
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
 
     const sql = `
       SELECT
@@ -91,7 +115,8 @@ WHERE rt."Request_Team_ID" = ${EQUIPO_SISTEMAS}
         AND ${this.exclusion.condicion()}
         AND r."Request_Created_At" >= $1::date
         AND r."Request_Created_At" < $2::date + 1
-        ${condicionUsuario}`;
+        ${condicionUsuario}
+        ${condicionEtiqueta}`;
 
     const [fila] = await this.bd.consultar<DispoServiciosCriticos>(
       sql,
@@ -106,6 +131,7 @@ WHERE rt."Request_Team_ID" = ${EQUIPO_SISTEMAS}
   ): Promise<HorasFallasCriticas> {
     const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroUsuario(parametros, filtros.usuario);
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
 
     const sql = `
       SELECT
@@ -124,7 +150,8 @@ WHERE rt."Request_Team_ID" = ${EQUIPO_SISTEMAS}
         AND ${this.exclusion.condicion()}
         AND r."Request_Created_At" >= $1::date
         AND r."Request_Created_At" < $2::date + 1
-        ${condicionUsuario}`;
+        ${condicionUsuario}
+        ${condicionEtiqueta}`;
 
     const [fila] = await this.bd.consultar<HorasFallasCriticas>(
       sql,

@@ -100,8 +100,12 @@ export class SistemasService {
       },
     };
   }
+  etiquetas() {
+    return this.repositorio.etiquetas();
+  }
+
   async todas(filtros: FiltrosKpi) {
-    const [kpis, usuarios] = await Promise.all([
+    const [kpis, usuarios, etiquetas] = await Promise.all([
       Promise.all([
         tendencia(filtros, (f) => this.disponibilidad(f)),
         tendencia(filtros, (f) => this.fallascriticas(f)),
@@ -109,7 +113,8 @@ export class SistemasService {
       ]),
 
       this.repositorio.usuarios(),
+      this.repositorio.etiquetas(),
     ]);
-    return { kpis, usuarios };
+    return { kpis, usuarios, etiquetas };
   }
 }

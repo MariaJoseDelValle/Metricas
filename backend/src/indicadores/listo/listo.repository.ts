@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseDatosService } from '../../base-datos/base-datos.service.js';
 import {
+  filtroEstadoListo,
   filtroResolutorListo,
   type FiltrosListo,
 } from '../comun/filtros-kpi.js';
@@ -20,6 +21,7 @@ const ESTADOS_EN_ATENCION = ['En Atención', 'En atención'];
 const ESTADO_FUERA_DE_TIEMPO = 'Fuera de tiempo';
 
 const ESTADOS_A_TIEMPO = ['En Atención', 'En atención', 'Cerrado'];
+const NIVELES_ANS = [1, 2, 3, 4, 5].map((n) => `ANS ${n}`);
 
 const lista = (valores: string[]) => valores.map((v) => `'${v}'`).join(', ');
 
@@ -32,6 +34,19 @@ export type ConteoAbiertos = {
   enAtencion: number;
   fueraDeTiempo: number;
   pausados: number;
+};
+// Una fila por resolutor y nivel de ANS. correo/nombre son null para los
+// tickets sin resolutor válido. Los conteos "global*" alimentan los KPIs de
+// ANS 1–5 (sin filtro de estado); ticketsTotal/ticketsATiempo alimentan la
+// gráfica por persona (con filtro de estado).
+export type ANSPersona = {
+  correo: string | null;
+  nombre: string | null;
+  ans: string;
+  globalTotal: number;
+  globalATiempo: number;
+  ticketsTotal: number;
+  ticketsATiempo: number;
 };
 
 @Injectable()
@@ -46,11 +61,9 @@ export class ListoRepository {
           LOWER(TRIM(r.resolutor_correo)) AS id,
           TRIM(r.resolutor_nombre)        AS nombre
         FROM "TBL_Resolutor_Solvi" r
-        WHERE r.resolutor_activo = true
-          AND r.resolutor_correo LIKE '%@%'
+        WHERE r.resolutor_correo LIKE '%@%'
           AND r.resolutor_nombre NOT ILIKE '%prueba%'
-                  
-         AND EXISTS (
+          AND EXISTS (
             SELECT 1 FROM "TBL_Ticket_Solvi" t
             WHERE LOWER(TRIM(t.ticket_solvi_correo_resolutor)) = LOWER(TRIM(r.resolutor_correo))
               AND t.ticket_solvi_fechaapertura >= ($1::date)::timestamp AT TIME ZONE 'America/Bogota'
@@ -85,31 +98,48 @@ export class ListoRepository {
     return fila;
   }
 
-  async ANS(filtros: FiltrosListo, nivel: number): Promise<ConteoGeneral> {
-    const parametros: unknown[] = [
-      filtros.desde,
-      filtros.hasta,
-      `ANS ${nivel}`,
-    ];
+  async ANSPorPersona(filtros: FiltrosListo): Promise<ANSPersona[]> {
+    const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroResolutorListo(parametros, filtros.usuario);
+    const condicionEstado = filtroEstadoListo(parametros, filtros.estado);
 
-    const sql = `
-        SELECT
-        COUNT(*)::int AS "ticketsTotal",
-        COUNT(*) FILTER (
-        WHERE 
-t.ticket_solvi_estado IN (${lista(ESTADOS_A_TIEMPO)})
-        )::int AS "ticketsATiempo"
-        FROM "TBL_Ticket_Solvi" t
-        WHERE t.ticket_solvi_estado <> '${ESTADO_PAUSADO}'
-         AND TRIM(t.ticket_solvi_ans) = $3
+    const sinPausados = `t.ticket_solvi_estado <> '${ESTADO_PAUSADO}'`;
+    const aTiempo = `t.ticket_solvi_estado IN (${lista(ESTADOS_A_TIEMPO)})`;
+    // El filtro de estado solo aplica a la gráfica por persona.
+    const condicionGrafica = filtros.estado
+      ? `TRUE ${condicionEstado}`
+      : sinPausados;
+
+    return this.bd.consultar<ANSPersona>(
+      `
+      WITH resolutores AS (
+        SELECT DISTINCT ON (LOWER(TRIM(r.resolutor_correo)))
+          LOWER(TRIM(r.resolutor_correo)) AS correo,
+          TRIM(r.resolutor_nombre)        AS nombre
+        FROM "TBL_Resolutor_Solvi" r
+        WHERE r.resolutor_correo LIKE '%@%'
+          AND r.resolutor_nombre NOT ILIKE '%prueba%'
+        ORDER BY LOWER(TRIM(r.resolutor_correo)), TRIM(r.resolutor_nombre)
+      )
+      SELECT
+        res.correo,
+        res.nombre,
+        TRIM(t.ticket_solvi_ans) AS ans,
+        COUNT(*) FILTER (WHERE ${sinPausados})::int AS "globalTotal",
+        COUNT(*) FILTER (WHERE ${sinPausados} AND ${aTiempo})::int AS "globalATiempo",
+        COUNT(*) FILTER (WHERE ${condicionGrafica})::int AS "ticketsTotal",
+        COUNT(*) FILTER (WHERE (${condicionGrafica}) AND ${aTiempo})::int AS "ticketsATiempo"
+      FROM "TBL_Ticket_Solvi" t
+      LEFT JOIN resolutores res
+        ON res.correo = LOWER(TRIM(t.ticket_solvi_correo_resolutor))
+      WHERE TRIM(t.ticket_solvi_ans) IN (${lista(NIVELES_ANS)})
         AND t.ticket_solvi_fechaapertura >= ($1::date)::timestamp AT TIME ZONE 'America/Bogota'
         AND t.ticket_solvi_fechaapertura <  ($2::date + 1)::timestamp AT TIME ZONE 'America/Bogota'
-       
-        ${condicionUsuario}`;
-
-    const [fila] = await this.bd.consultar<ConteoGeneral>(sql, parametros);
-    return fila;
+        ${condicionUsuario}
+      GROUP BY res.correo, res.nombre, TRIM(t.ticket_solvi_ans)
+      ORDER BY res.nombre NULLS LAST, ans`,
+      parametros,
+    );
   }
 
   async Abiertos(filtros: FiltrosListo): Promise<ConteoAbiertos> {

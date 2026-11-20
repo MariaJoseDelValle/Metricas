@@ -9,7 +9,10 @@ import {
   type Periodo,
   periodoMesActual,
   type Usuario,
+  type Etiqueta,
 } from "./Services/IndicadoresApi.ts";
+
+import type { FiltrosPagina } from "./components/Filtros/FiltrosComunes.tsx";
 
 import "./App.css";
 import PageProcesos from "./components/Procesos/PageProcesos.tsx";
@@ -18,12 +21,23 @@ function App() {
   const [periodo, setPeriodo] = useState<Periodo>(periodoMesActual());
   const [usuario, setUsuario] = useState<string | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [estado, setEstado] = useState<string | null>(null);
+  const [etiqueta, setEtiqueta] = useState<string | null>(null);
+  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
   const { pathname } = useLocation();
 
   useEffect(() => {
     setUsuario(null);
+    setEstado(null);
+    setEtiqueta(null);
+    setEtiquetas([]);
   }, [pathname]);
-  const props = { periodo, usuario, alRecibirUsuarios: setUsuarios };
+
+  const filtros: FiltrosPagina = {
+    periodo,
+    usuario,
+    alRecibirUsuarios: setUsuarios,
+  };
 
   return (
     <div className="app">
@@ -35,18 +49,45 @@ function App() {
           usuario={usuario}
           usuarios={usuarios}
           alCambiarUsuario={setUsuario}
+          estado={estado}
+          alCambiarEstado={setEstado}
+          mostrarEstado={pathname === "/listo"}
+          etiqueta={etiqueta}
+          etiquetas={etiquetas}
+          alCambiarEtiqueta={setEtiqueta}
+          mostrarEtiqueta={
+            pathname === "/desarrollo" || pathname === "/sistemas"
+          }
+          tituloEtiqueta={pathname === "/sistemas" ? "Etiqueta" : "Proyecto"}
         />
         <main className="app-contenido">
           <Routes>
-            <Route path="/desarrollo" element={<PageDesarrollo {...props} />} />
+            <Route
+              path="/desarrollo"
+              element={
+                <PageDesarrollo
+                  {...filtros}
+                  etiqueta={etiqueta}
+                  alRecibirEtiquetas={setEtiquetas}
+                />
+              }
+            />
             <Route
               path="/sistemas"
-              element={<PageSistemasInformacion {...props} />}
+              element={
+                <PageSistemasInformacion
+                  {...filtros}
+                  etiqueta={etiqueta}
+                  alRecibirEtiquetas={setEtiquetas}
+                />
+              }
             />
-            <Route path="/crm" element={<p> Próximamente</p>} />
 
-            <Route path="/procesos" element={<PageProcesos {...props} />} />
-            <Route path="/listo" element={<PageListo {...props} />} />
+            <Route path="/procesos" element={<PageProcesos {...filtros} />} />
+            <Route
+              path="/listo"
+              element={<PageListo {...filtros} estado={estado} />}
+            />
             <Route path="/" element={<Navigate to="/desarrollo" replace />} />
             <Route path="*" element={<p>Página no encontrada</p>} />
           </Routes>

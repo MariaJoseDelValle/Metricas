@@ -17,7 +17,7 @@ export const kpisSistemasInformacion: Kpi[] = [
     formula: "(Horas del mes − Horas de corrección) / Horas del mes × 100",
     nota: 'Horario laboral de 8,5 h por día. Horas de los tickets con etiqueta "corrección indisponibilidad".',
     apoyo: { etiqueta: "Horas de corrección", valor: "—" },
-    ruta: "sistemas/disponibilidad",
+
     textoApoyo: (d) =>
       `${d.horasindisponibilidad ?? 0} h de corrección de ${d.horasfuncionamiento} h`,
 
@@ -38,7 +38,7 @@ export const kpisSistemasInformacion: Kpi[] = [
       "# de horas para solucionar la falla/# de horas disponibles para fallas × 100",
     nota: ' Servicios críticos (ETL,Vtex):tickets con etiquetas "Proyectos ETL" e "Integraciones". 20 h disponibles por mes. ENTRE MÁS BAJO MEJOR',
     apoyo: { etiqueta: "Horas de solución", valor: "—" },
-    ruta: "sistemas/resolucion-fallas-criticas",
+
     textoApoyo: (d) =>
       `${d.horasSolucion ?? 0} h de ${d.horasDisponibles} h disponibles`,
 
@@ -59,7 +59,7 @@ export const kpisSistemasInformacion: Kpi[] = [
       "solicitudes de soporte a la operacion atendida/ solicitudes de soporte a la operacion recibidad x 100",
     nota: 'Tickets con etiqueta "Solicitud de soporte"',
     apoyo: { etiqueta: "Solicitudes del período", valor: "—" },
-    ruta: "sistemas/soporte-funcional",
+
     textoApoyo: (d) => `${d.atendidos} atendidas de ${d.recibidos} recibidas`,
 
     grafica: Velocimetro,

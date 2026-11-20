@@ -29,7 +29,7 @@ export type Kpi = {
   formula: string;
   nota: string;
   detalle?: Record<string, number | string>;
-  ruta?: string;
+
   maximo?: number;
   tendencia?: PuntoSerie[];
   grafica?: ComponentType<{ kpi: Kpi }>;

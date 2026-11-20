@@ -19,7 +19,7 @@ export const kpisDesarrollo: Kpi[] = [
       "Promedio  de tiempo de resolucion entre Fecha creación y Fecha cierre",
     nota: 'Solo tickets "Caso de soporte" cerrados, filtrados por fecha de cierre',
     apoyo: { etiqueta: "Tickets cerrados", valor: "—" },
-    ruta: "desarrollo/tiempo-resolucion",
+
     textoApoyo: (d) => `${d.ticketsCerrados} tickets cerrados`,
 
     grafica: Velocimetro,
@@ -38,11 +38,9 @@ export const kpisDesarrollo: Kpi[] = [
     formula: 'Tickets "Caso de soporte" / Tickets totales × 100',
     nota: 'Tickets con la etiqueta "Caso de soporte" registrados en PRISMA.',
     apoyo: { etiqueta: "Tickets del período", valor: "—" },
-    ruta: "desarrollo/resolucion-fallas",
+
     textoApoyo: (d) =>
       `${d.ticketsFallas} fallas de ${d.ticketsTotales} tickets`,
-
-    grafica: Velocimetro,
   },
   {
     id: "satisfaccion",
@@ -60,9 +58,7 @@ export const kpisDesarrollo: Kpi[] = [
     formula: "Suma de calificaciones (1 a 5) / N.º de respuestas",
     nota: "Calificación de la Solución",
     apoyo: { etiqueta: "Muestra", valor: "—" }, // satisfacción
-    ruta: "desarrollo/satisfaccion",
-    textoApoyo: (d) => `${d.calificaciones} calificaciones`,
 
-    grafica: Velocimetro,
+    textoApoyo: (d) => `${d.calificaciones} calificaciones`,
   },
 ];

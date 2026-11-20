@@ -4,27 +4,31 @@ import TarjetaKpi from "../TarjetaKpi/TarjetaKpi.tsx";
 import "./PaginaKpi.css";
 import {
   obtenerArea,
-  type Periodo,
   type RespuestaKpi,
-  type Usuario,
+  type Etiqueta,
 } from "../../Services/IndicadoresApi.ts";
+import type { FiltrosPagina } from "../Filtros/FiltrosComunes.tsx";
 
-type PaginaKpisProps = {
+type PaginaKpisProps = FiltrosPagina & {
   titulo: string;
   subtitulo: string;
   area: string;
   graficas?: (datos: RespuestaKpi[], kpisCombinados: Kpi[]) => ReactNode;
   kpis: Kpi[];
 
-  periodo: Periodo;
-  usuario: string | null;
-  alRecibirUsuarios: (usuarios: Usuario[]) => void;
+  estado?: string | null;
+  etiqueta?: string | null;
+  alRecibirEtiquetas?: (etiquetas: Etiqueta[]) => void;
 };
 
 export function combinar(kpi: Kpi, respuesta: RespuestaKpi): Kpi {
+  const resultado =
+    respuesta.resultado !== null && kpi.unidad === "días"
+      ? Math.round(respuesta.resultado)
+      : respuesta.resultado;
   return {
     ...kpi,
-    resultado: respuesta.resultado,
+    resultado,
     estado: respuesta.estado,
     meta: respuesta.meta,
     operador: respuesta.operador,
@@ -46,15 +50,18 @@ function PaginaKpis({
   kpis,
   periodo,
   usuario,
+  estado,
   graficas,
   alRecibirUsuarios,
+  etiqueta,
+  alRecibirEtiquetas,
 }: PaginaKpisProps) {
   const [kpisconDatos, setKpisConDatos] = useState<Kpi[]>(kpis);
   const [error, setError] = useState<string | null>(null);
   const [datos, setDatos] = useState<RespuestaKpi[]>([]);
   useEffect(() => {
     let cancelado = false;
-    obtenerArea(area, periodo, usuario)
+    obtenerArea(area, periodo, usuario, estado ?? null, etiqueta ?? null)
       .then((respuesta) => {
         if (cancelado) return;
         setDatos(respuesta.kpis);
@@ -66,6 +73,7 @@ function PaginaKpis({
         );
 
         alRecibirUsuarios(respuesta.usuarios);
+        if (respuesta.etiquetas) alRecibirEtiquetas?.(respuesta.etiquetas);
         setError(null);
       })
       .catch((e: Error) => {
@@ -74,7 +82,16 @@ function PaginaKpis({
     return () => {
       cancelado = true;
     };
-  }, [area, kpis, periodo, usuario, alRecibirUsuarios]);
+  }, [
+    area,
+    kpis,
+    periodo,
+    usuario,
+    estado,
+    etiqueta,
+    alRecibirUsuarios,
+    alRecibirEtiquetas,
+  ]);
 
   return (
     <section>

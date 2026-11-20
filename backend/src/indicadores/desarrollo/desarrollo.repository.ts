@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { BaseDatosService } from '../../base-datos/base-datos.service.js';
 import { ExclusionEstandarService } from '../comun/exclusion-estandar.service.js';
 import type { FiltrosKpi } from '../comun/filtros-kpi.js';
-import { filtroUsuario, listarUsuarios } from '../comun/filtros-kpi.js';
+import {
+  filtroUsuario,
+  listarUsuarios,
+  filtroEtiqueta,
+} from '../comun/filtros-kpi.js';
 
 const EQUIPO_DESARROLLO_TI = 11;
 const ETIQUETA_CASO_SOPORTE_DESARROLLO = 192;
@@ -34,16 +38,17 @@ export class DesarrolloRepository {
   async sumarCalificaciones(
     filtros: FiltrosKpi,
   ): Promise<ConteoCalificaciones> {
-  const parametros: unknown[] = [filtros.desde, filtros.hasta];
-let condicionUsuario = '';
-if (filtros.usuario !== undefined) {
-  parametros.push(filtros.usuario);
-  condicionUsuario = `AND EXISTS (
+    const parametros: unknown[] = [filtros.desde, filtros.hasta];
+    let condicionUsuario = '';
+    if (filtros.usuario !== undefined) {
+      parametros.push(filtros.usuario);
+      condicionUsuario = `AND EXISTS (
     SELECT 1 FROM "TBL_Resolution_Rating_Resolvers" rv
     WHERE rv."Rating_ID" = rr."Rating_ID"
       AND rv."Resolver_User_ID" = $${parametros.length}
   )`;
-}
+    }
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
     const sql = `
       SELECT
         COUNT(*)::int                  AS calificaciones,
@@ -55,7 +60,8 @@ if (filtros.usuario !== undefined) {
         AND ${this.exclusion.condicion()}
         AND rr."Created_At" >= ($1::date)::timestamp AT TIME ZONE 'America/Bogota'
         AND rr."Created_At" <  ($2::date + 1)::timestamp AT TIME ZONE 'America/Bogota'
-        ${condicionUsuario}`;
+        ${condicionUsuario}
+        ${condicionEtiqueta}`;
 
     const [fila] = await this.bd.consultar<ConteoCalificaciones>(
       sql,
@@ -68,6 +74,7 @@ if (filtros.usuario !== undefined) {
     const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroUsuario(parametros, filtros.usuario);
 
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
     const sql = `
 
         SELECT 
@@ -89,7 +96,9 @@ if (filtros.usuario !== undefined) {
          AND ${this.exclusion.condicion()}
       AND r."Request_Created_At" >= $1::date
       AND r."Request_Created_At" < $2::date + 1
-      ${condicionUsuario}`;
+      ${condicionUsuario}
+      ${condicionEtiqueta}`;
+
     const [fila] = await this.bd.consultar<ConteoFallas>(sql, parametros);
     return fila;
   }
@@ -97,6 +106,7 @@ if (filtros.usuario !== undefined) {
   async tiempoResolucion(filtros: FiltrosKpi): Promise<TiempoResolucion[]> {
     const parametros: unknown[] = [filtros.desde, filtros.hasta];
     const condicionUsuario = filtroUsuario(parametros, filtros.usuario);
+    const condicionEtiqueta = filtroEtiqueta(parametros, filtros.etiqueta);
     const sql = `
   SELECT
       to_char(r."Request_Created_At",  'YYYY-MM-DD"T"HH24:MI:SS') AS creado,
@@ -114,7 +124,8 @@ if (filtros.usuario !== undefined) {
       )
       AND r."Request_Finished_At" >= $1::date
       AND r."Request_Finished_At" <  $2::date + 1
-      ${condicionUsuario}`;
+      ${condicionUsuario}
+      ${condicionEtiqueta}`;
 
     return this.bd.consultar<TiempoResolucion>(sql, parametros);
   }

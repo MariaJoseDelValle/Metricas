@@ -63,83 +63,23 @@
 
 .pantalla-tarjetas:has(.tarjeta-grafica-ans) > .tarjeta-kpi:first-child {
   grid-column: 1;
-  grid-row: 1;
+  grid-row: 2;
   grid-template-rows: auto auto 1fr auto;
 }
 
 .tarjeta-kpi.tarjeta-grafica-ans {
-  grid-column: 2;
+  grid-column: 1/-1;
   grid-row: 1;
-  grid-template-rows: auto 1fr auto;
-}
-
-/* Mini tarjetas ANS dentro del recuadro de la gráfica */
-.seccion-tarjetas-mini {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-}
-.mini-tarjeta-wrapper {
-  display: flex;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi {
-  flex: 1;
-  align-content: start;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi {
-  grid-row: auto;
-  grid-template-rows: auto;
-  row-gap: 6px;
-  padding: 10px;
-  border-radius: 10px;
-  border-top-width: 3px;
-  box-shadow: none;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-encabezado {
-  flex-direction: column;
-  gap: 4px;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-icono {
-  display: none;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-nombre {
-  font-size: 10px;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-meta {
-  display: none;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-resultado {
-  font-size: 16px;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-unidad {
-  font-size: 11px;
-}
-
-.seccion-tarjetas-mini .tarjeta-kpi-estado {
-  padding: 2px 6px;
-  font-size: 10px;
-}
-
-.seccion-tarjetas-mini
-  :is(.tarjeta-kpi-formula, .tarjeta-kpi-progreso, .tarjeta-kpi-apoyo) {
-  display: none;
+  grid-template-rows: auto 1fr;
 }
 
 .barras-ans {
   position: relative;
-  min-height: 260px;
+  min-height: 300px;
 }
 /* Tarjeta de la dona: debajo de Cumplimiento General */
 .tarjeta-kpi.tarjeta-grafica-abiertos {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 2;
   grid-template-rows: auto 1fr auto;
 }
@@ -242,8 +182,8 @@
 }
 
 .tarjeta-kpi.tarjeta-grafica-creados {
-  grid-column: 2;
-  grid-row: 2;
+  grid-column: 1 /-1;
+  grid-row: 3;
   grid-template-rows: auto 1fr;
 }
 

@@ -15,13 +15,19 @@ import "./GraficasListo.css";
 import type { RespuestaKpi } from "../../Services/IndicadoresApi.ts";
 import type { CSSProperties } from "react";
 import { ChartColumn, ChartPie, ChartLine } from "lucide-react";
-import TarjetaKpi from "../TarjetaKpi/TarjetaKpi.tsx";
 
-const COLOR_EN_ATENCION = "#0881f3";
-const COLOR_FUERA_DE_TIEMPO = "#f32415";
-const COLOR_PAUSADO = "#f5a623";
-const COLOR_CERRADOS = "#22a06b";
-const COLOR_CREADOS = "#fd8105";
+const NIVELES_ANS = ["ANS 1", "ANS 2", "ANS 3", "ANS 4", "ANS 5"];
+
+const COLORES_PERSONAS = [
+  "#3b6fd8",
+  "#f5a623",
+  "#22a06b",
+  "#8e2f9b",
+  "#e5484d",
+  "#0bb3c4",
+  "#9b5e25",
+  "#e85d9c",
+];
 
 const fecha = (f: string) => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
 
@@ -95,8 +101,15 @@ export function MedidorCumplimientoGeneral({ kpi }: { kpi: Kpi }) {
   );
 }
 
-export function MedidorCumplimientoANS({ kpis }: { kpis: Kpi[] }) {
-  const ans = kpis.filter((k) => k.id.startsWith("cumplimiento-ANS"));
+export function MedidorCumplimientoANS({
+  datos,
+  estado,
+}: {
+  datos?: RespuestaKpi;
+  estado?: string | null;
+}) {
+  const personas = datos?.personas ?? [];
+  const porCantidad = estado != null;
   return (
     <article
       className="tarjeta-kpi tarjeta-grafica-ans"
@@ -107,45 +120,62 @@ export function MedidorCumplimientoANS({ kpis }: { kpis: Kpi[] }) {
           <span className="tarjeta-kpi-icono">
             <ChartColumn size={18} />
           </span>
-          <h3 className="tarjeta-kpi-nombre">Cumplimiento por ANS</h3>
+          <h3 className="tarjeta-kpi-nombre">Cumplimiento ANS por persona</h3>
         </div>
         <span className="tarjeta-kpi-meta">Meta ≥ 85% Fuente Solvi</span>
       </header>
-      <div className="barras-ans">
-        <Bar
-          data={{
-            labels: ans.map((k) => k.nombre.replace("Cumplimiento ", "")),
-            datasets: [
-              {
-                data: ans.map((k) => k.resultado),
-                backgroundColor: ans.map((k) => `${k.color}33`),
-                borderColor: ans.map((k) => k.color),
-                borderRadius: 4,
-                barPercentage: 0.5,
-                borderWidth: 1,
-              },
-            ],
-          }}
-          options={{
-            maintainAspectRatio: false,
-            scales: {
-              y: { min: 0, max: 100, ticks: { callback: (v) => `${v}%` } },
-            },
-            plugins: { legend: { display: false } },
-          }}
-        />
-      </div>
 
-      <div className="seccion-tarjetas-mini">
-        {ans.map((kpi) => (
-          <div className="mini-tarjeta-wrapper" key={kpi.id}>
-            <TarjetaKpi kpi={kpi} />
-          </div>
-        ))}
-      </div>
+      {personas.length === 0 ? (
+        <p className="dona-vacia">Sin tickets con ANS en el período</p>
+      ) : (
+        <div className="barras-ans">
+          <Bar
+            data={{
+              labels: NIVELES_ANS,
+              datasets: personas.map((persona, i) => {
+                const color = COLORES_PERSONAS[i % COLORES_PERSONAS.length];
+                return {
+                  label: persona.nombre,
+                  data: persona.ans.map((a) =>
+                    a ? (porCantidad ? a.ticketsTotal : a?.cumplimiento) : null,
+                  ),
+                  backgroundColor: `${color}33`,
+                  borderColor: color,
+                  borderWidth: 1,
+                };
+              }),
+            }}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                x: { grid: { display: false } },
+                y: porCantidad
+                  ? { beginAtZero: true, ticks: { precision: 0 } }
+                  : { min: 0, max: 100, ticks: { callback: (v) => `${v}%` } },
+              },
+              plugins: {
+                legend: { position: "top" },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => {
+                      const a = personas[ctx.datasetIndex].ans[ctx.dataIndex];
+                      if (!a) return ` ${ctx.dataset.label}: sin tickets`;
+                      if (porCantidad)
+                        return ` ${ctx.dataset.label}: ${a.ticketsTotal} tickets`;
+
+                      return ` ${ctx.dataset.label}: ${a.cumplimiento}% (${a.ticketsATiempo} de ${a.ticketsTotal} a tiempo)`;
+                    },
+                  },
+                },
+              },
+            }}
+          />
+        </div>
+      )}
     </article>
   );
 }
+
 export function MedidorTicketAbierto({ datos }: { datos?: RespuestaKpi }) {
   const enAtencion = Number(datos?.detalle?.enAtencion ?? 0);
   const fueraDeTiempo = Number(datos?.detalle?.fueraDeTiempo ?? 0);
@@ -153,13 +183,13 @@ export function MedidorTicketAbierto({ datos }: { datos?: RespuestaKpi }) {
   const total = enAtencion + fueraDeTiempo + pausados;
 
   const estados = [
-    { nombre: "En atención", valor: enAtencion, color: COLOR_EN_ATENCION },
+    { nombre: "En atención", valor: enAtencion, color: " #0881f3" },
     {
       nombre: "Fuera de tiempo",
       valor: fueraDeTiempo,
-      color: COLOR_FUERA_DE_TIEMPO,
+      color: "#f32415",
     },
-    { nombre: "Pausados", valor: pausados, color: COLOR_PAUSADO },
+    { nombre: "Pausados", valor: pausados, color: "#f5a623" },
   ];
 
   return (
@@ -263,7 +293,7 @@ export function GraficaTickets({ datos }: { datos?: RespuestaKpi }) {
   return (
     <article
       className="tarjeta-kpi tarjeta-grafica-creados"
-      style={{ "--color-kpi": COLOR_CREADOS } as CSSProperties}
+      style={{ "--color-kpi": "#22a06b" } as CSSProperties}
     >
       <header className="tarjeta-kpi-encabezado">
         <div className="tarjeta-kpi-titulo">
@@ -289,15 +319,15 @@ export function GraficaTickets({ datos }: { datos?: RespuestaKpi }) {
                 {
                   label: "Creados",
                   data: serie.map((s) => s.creados),
-                  borderColor: COLOR_CREADOS,
-                  backgroundColor: COLOR_CREADOS,
+                  borderColor: "#22a06b",
+                  backgroundColor: "#22a06b",
                   tension: 0.3,
                 },
                 {
                   label: "Cerrados",
                   data: serie.map((s) => s.cerrados),
-                  borderColor: COLOR_CERRADOS,
-                  backgroundColor: COLOR_CERRADOS,
+                  borderColor: " #fd8105",
+                  backgroundColor: " #fd8105",
                   tension: 0.3,
                 },
               ],

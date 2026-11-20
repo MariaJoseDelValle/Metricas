@@ -26,7 +26,6 @@ export const kpisListo: Kpi[] = [
     formula: "(# de tickets a tiempo /Cantidad de tickets) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
 
-    ruta: "listo/cumplimiento-general",
     grafica: MedidorCumplimientoGeneral,
   },
 ];
@@ -46,8 +45,6 @@ export const kpisANS: Kpi[] = [
       "(Cantidad de tickets  ANS 1 a tiempo /Cantidad de tickets ANS 1) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
 
-    ruta: "listo/cumplimiento-ANS1",
-
     textoApoyo: (d) =>
       `${d.ticketsTotal} tickets totales, ${d.ticketsATiempo} a tiempo`,
   },
@@ -66,8 +63,6 @@ export const kpisANS: Kpi[] = [
     formula:
       "(Cantidad de tickets  ANS 2 a tiempo /Cantidad de tickets ANS 2) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
-
-    ruta: "listo/cumplimiento-ANS2",
   },
 
   {
@@ -84,8 +79,6 @@ export const kpisANS: Kpi[] = [
     formula:
       "(Cantidad de tickets  ANS 3 a tiempo /Cantidad de tickets ANS 3) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
-
-    ruta: "listo/cumplimiento-ANS3",
   },
   {
     id: "cumplimiento-ANS4",
@@ -101,8 +94,6 @@ export const kpisANS: Kpi[] = [
     formula:
       "(Cantidad de tickets  ANS 4 a tiempo /Cantidad de tickets ANS 4) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
-
-    ruta: "listo/cumplimiento-ANS4",
   },
 
   {
@@ -119,7 +110,5 @@ export const kpisANS: Kpi[] = [
     formula:
       "(Cantidad de tickets  ANS 5 a tiempo /Cantidad de tickets ANS 5) x 100",
     nota: "Excluir tickets que se encuentren en estado 'Pausado'",
-
-    ruta: "listo/cumplimiento-ANS5",
   },
 ];

@@ -13,6 +13,7 @@ export type FiltrosKpi = {
   desde: string; // AAAA-MM-DD, incluido
   hasta: string; // AAAA-MM-DD, incluido
   usuario?: number;
+  etiqueta?: number;
 };
 
 export function filtroUsuario(parametros: unknown[], usuario?: number): string {
@@ -75,7 +76,29 @@ export function validarFiltros(
   };
 }
 
-export type FiltrosListo = Omit<FiltrosKpi, 'usuario'> & { usuario?: string };
+export const ESTADOS_LISTO: Record<string, string[]> = {
+  'en-atencion': ['En Atención', 'En atención'],
+  'fuera-de-tiempo': ['Fuera de tiempo'],
+  pausado: ['Pausado'],
+  cerrado: ['Cerrado'],
+  // "Cerado" es un error de escritura que existe en los datos de SOLVI.
+  'cerrado-fuera-de-tiempo': ['Cerrado fuera de tiempo', 'Cerado fuera de tiempo'],
+};
+
+export type FiltrosListo = Omit<FiltrosKpi, 'usuario'> & {
+  usuario?: string;
+  estado?: string;
+};
+
+export function filtroEstadoListo(
+  parametros: unknown[],
+  estado?: string,
+): string {
+  if (!estado) return '';
+  parametros.push(ESTADOS_LISTO[estado]);
+  return `AND TRIM(t.ticket_solvi_estado) = ANY($${parametros.length}::text[])`;
+}
+
 export function filtroResolutorListo(
   parametros: unknown[],
   correo?: string,
@@ -84,4 +107,16 @@ export function filtroResolutorListo(
 
   parametros.push(correo.trim().toLowerCase());
   return `AND LOWER(TRIM(t.ticket_solvi_correo_resolutor)) = $${parametros.length}`;
+}
+export function filtroEtiqueta(
+  parametros: unknown[],
+  etiqueta?: number,
+): string {
+  if (etiqueta === undefined) return '';
+  parametros.push(etiqueta);
+  return `AND EXISTS (
+  SELECT 1 FROM "TBL_Request_Labels" le
+    WHERE le."Request_Labels_Request_ID" = r."Request_ID"
+      AND le."Request_Labels_Label_ID" = $${parametros.length}
+  )`;
 }

@@ -1,6 +1,12 @@
 import "./BarraSuperior.css";
-import type { Periodo, Usuario } from "../../Services/IndicadoresApi";
-import { CalendarDays, ChevronDown } from "lucide-react";
+import {
+  type Periodo,
+  type Usuario,
+  type Etiqueta,
+  ESTADOS_TICKET,
+} from "../../Services/IndicadoresApi";
+import { ChevronDown } from "lucide-react";
+import FiltrosComunes from "../Filtros/FiltrosComunes.tsx";
 
 type BarraSuperiorProps = {
   periodo: Periodo;
@@ -8,6 +14,14 @@ type BarraSuperiorProps = {
   usuario: string | null;
   usuarios: Usuario[];
   alCambiarUsuario: (usuario: string | null) => void;
+  estado: string | null;
+  alCambiarEstado: (estado: string | null) => void;
+  mostrarEstado: boolean;
+  etiqueta: string | null;
+  etiquetas: Etiqueta[];
+  alCambiarEtiqueta: (etiqueta: string | null) => void;
+  mostrarEtiqueta: boolean;
+  tituloEtiqueta: string;
 };
 
 function BarraSuperior({
@@ -16,56 +30,67 @@ function BarraSuperior({
   usuario,
   usuarios,
   alCambiarUsuario,
+  estado,
+  alCambiarEstado,
+  mostrarEstado,
+  etiqueta,
+  etiquetas,
+  alCambiarEtiqueta,
+  mostrarEtiqueta,
+  tituloEtiqueta,
 }: BarraSuperiorProps) {
   return (
     <header className="barra-superior">
-      <div className="filtro" role="group" aria-label="Periodo">
-        <span className="filtro-etiqueta">Periodo</span>
-        <div className="filtro-campo">
-          <CalendarDays size={16} className="filtro-icono" />
-          <input
-            type="date"
-            aria-label="Fecha inicio"
-            value={periodo.desde}
-            max={periodo.hasta}
-            onChange={(e) => {
-              if (e.target.value)
-                alCambiarPeriodo({ ...periodo, desde: e.target.value });
-            }}
-          />
-          <span className="filtro-fecha">➔</span>
+      <FiltrosComunes
+        periodo={periodo}
+        alCambiarPeriodo={alCambiarPeriodo}
+        usuario={usuario}
+        usuarios={usuarios}
+        alCambiarUsuario={alCambiarUsuario}
+      />
+      {mostrarEstado && (
+        <label className="filtro">
+          <span className="filtro-etiqueta"> Estado</span>
+          <div className="filtro-campo">
+            <select
+              value={estado ?? ""}
+              onChange={(e) =>
+                alCambiarEstado(e.target.value === "" ? null : e.target.value)
+              }
+            >
+              <option value="">Todos</option>
+              {ESTADOS_TICKET.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.nombre}
+                </option>
+              ))}
+            </select>
 
-          <input
-            type="date"
-            aria-label="Fecha fin"
-            value={periodo.hasta}
-            min={periodo.desde}
-            onChange={(e) => {
-              if (e.target.value)
-                alCambiarPeriodo({ ...periodo, hasta: e.target.value });
-            }}
-          />
-        </div>
-      </div>
-      <label className="filtro">
-        <span className="filtro-etiqueta"> Usuario</span>
-        <div className="filtro-campo">
-          <select
-            value={usuario ?? ""}
-            onChange={(e) =>
-              alCambiarUsuario(e.target.value === "" ? null : e.target.value)
-            }
-          >
-            <option value="">Todos</option>
-            {usuarios.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.nombre}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={16} className="filtro-icono filtro-chevron" />
-        </div>
-      </label>
+            <ChevronDown size={16} className="filtro-icono filtro-chevron" />
+          </div>
+        </label>
+      )}
+      {mostrarEtiqueta && (
+        <label className="filtro">
+          <span className="filtro-etiqueta"> {tituloEtiqueta}</span>
+          <div className="filtro-campo">
+            <select
+              value={etiqueta ?? ""}
+              onChange={(e) =>
+                alCambiarEtiqueta(e.target.value === "" ? null : e.target.value)
+              }
+            >
+              <option value="">Todos</option>
+              {etiquetas.map((et) => (
+                <option key={et.id} value={et.id}>
+                  {et.nombre}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={16} className="filtro-icono filtro-chevron" />
+          </div>
+        </label>
+      )}
     </header>
   );
 }
