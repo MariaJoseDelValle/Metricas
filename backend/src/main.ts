@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Indicadores EDM')
+    .setTitle('Indicadores TI')
     .setDescription('API de los indicadores (Kpis) calculados desde Prisma')
     .setVersion('1.0')
     .build();

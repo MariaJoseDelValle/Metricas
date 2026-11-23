@@ -1,44 +1,39 @@
 import "./MenuLateral.css";
-
+import { Code, Database, Workflow, MonitorCog } from "lucide-react";
+import { NavLink } from "react-router";
 const areas = [
-  "Desarrollo",
-  "Sistemas de Información",
-  "CRM",
-  "Procesos",
-  "Front",
+  { path: "/desarrollo", label: "Desarrollo", icon: Code },
+  { path: "/sistemas", label: "Sistemas de Información", icon: Database },
+
+  { path: "/procesos", label: "Procesos", icon: Workflow },
+  { path: "/listo", label: "Listo", icon: MonitorCog },
 ];
 
-type MenuLateralProps = {
-  areaActiva: string;
-  alCambiarArea: (area: string) => void;
-};
-
-function MenuLateral({ areaActiva, alCambiarArea }: MenuLateralProps) {
+function MenuLateral() {
   return (
     <aside className="menu-lateral">
       <div className="menu-lateral-marca">
         <img src="/favicon.svg" alt="" className="menu-lateral-logo" />
-        Indicadores EDM
+        Indicadores TI
       </div>
 
       <p className="menu-lateral-seccion">Áreas & KPIs</p>
       <ul className="menu-lateral-lista">
         {areas.map((area) => (
-          <li key={area}>
-            <button
-              type="button"
-              className={
-                area === areaActiva
-                  ? "menu-lateral-item activo"
-                  : "menu-lateral-item"
+          <li key={area.path}>
+            <NavLink
+              to={area.path}
+              className={({ isActive }) =>
+                isActive ? "menu-lateral-item activo" : "menu-lateral-item"
               }
-              onClick={() => alCambiarArea(area)}
             >
-              {area}
-            </button>
+              <area.icon size={18} className="menu-lateral-icon" />
+              {area.label}
+            </NavLink>
           </li>
         ))}
       </ul>
+      <div className="menu-lateral-usuario">Maria Jose</div>
     </aside>
   );
 }

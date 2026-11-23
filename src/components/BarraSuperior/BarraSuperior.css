@@ -1,14 +1,13 @@
 .barra-superior {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 24px;
   background: var(--blanco);
   border-bottom: 1px solid var(--borde);
   padding: 16px 32px;
-}
-
-.barra-superior-titulo {
-  font-weight: bold;
 }
 
 .barra-superior-periodo {
@@ -16,7 +15,85 @@
   font-size: 14px;
 }
 
-.barra-superior-usuario {
-  margin-left: auto;
+.filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filtro-etiqueta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.filtro-campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  background: #f8fafc;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.filtro-campo:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.filtro-campo:focus-within {
+  /* al hacer clic dentro */
+  border-color: var(--morado);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--morado) 15%, transparent);
+}
+
+.filtro-campo input,
+.filtro-campo select {
+  border: none;
+  background: transparent;
+  outline: none;
+  font: inherit;
   font-size: 14px;
+  color: var(--texto);
+}
+
+.filtro-campo input[type="date"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.filtro-campo input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.filtro-campo select {
+  appearance: none;
+  min-width: 140px;
+  padding-right: 24px;
+  cursor: pointer;
+}
+
+.filtro-icono {
+  color: var(--texto-suave);
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.filtro-chevron {
+  position: absolute;
+  right: 12px;
+}
+.filtro-flecha {
+  color: var(--texto-suave);
 }

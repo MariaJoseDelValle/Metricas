@@ -1,0 +1,10 @@
+.tarjeta-kpi.tarjeta-grafica-procesos {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  grid-template-rows: auto 1fr;
+}
+
+.barras-procesos {
+  position: relative;
+  height: 300px;
+}

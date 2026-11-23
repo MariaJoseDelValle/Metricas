@@ -1,11 +1,13 @@
 import { Headset, Server, Timer } from "lucide-react";
 import type { Kpi } from "../../Models/Kpi.ts";
+import { Velocimetro } from "../GraficasComunes/Velocimetro.tsx";
 
 export const kpisSistemasInformacion: Kpi[] = [
   {
     id: "disponibilidad",
-    nombre: "disponibilidad de servicios criticos",
-    resultado: 97.22,
+    nombre: "Disponibilidad de servicios criticos",
+    resultado: null,
+    estado: "sin_datos",
     meta: 95,
     unidad: "%",
     operador: ">=",
@@ -14,33 +16,39 @@ export const kpisSistemasInformacion: Kpi[] = [
     fuente: "PRISMA",
     formula: "(Horas del mes − Horas de corrección) / Horas del mes × 100",
     nota: 'Horario laboral de 8,5 h por día. Horas de los tickets con etiqueta "corrección indisponibilidad".',
-    apoyo: {
-      etiqueta: "Horas de corrección",
-      valor: "5,2 h de 187 h laborales",
-    },
+    apoyo: { etiqueta: "Horas de corrección", valor: "—" },
+
+    textoApoyo: (d) =>
+      `${d.horasindisponibilidad ?? 0} h de corrección de ${d.horasfuncionamiento} h`,
+
+    grafica: Velocimetro,
   },
   {
     id: "resolucion-fallas-criticas",
-    nombre: "Tiempo de resolución de fallas en servicios criticos (ETL, Vtex",
-    resultado: 72,
+    nombre: "Tiempo de resolución de fallas críticas",
+    resultado: null,
+    estado: "sin_datos",
     meta: 100,
     unidad: "%",
-    operador: ">=",
+    operador: "<=",
     color: "#7c3aed",
     icono: Timer,
     fuente: "PRISMA",
     formula:
       "# de horas para solucionar la falla/# de horas disponibles para fallas × 100",
-    nota: ' Servicios críticos (ETL,Vtex):tickets con etiquetas "Proyectos ETL" e "Integraciones".',
-    apoyo: {
-      etiqueta: "Horas de corrección",
-      valor: "18 h de 25 h disponibles",
-    },
+    nota: ' Servicios críticos (ETL,Vtex):tickets con etiquetas "Proyectos ETL" e "Integraciones". 20 h disponibles por mes. ENTRE MÁS BAJO MEJOR',
+    apoyo: { etiqueta: "Horas de solución", valor: "—" },
+
+    textoApoyo: (d) =>
+      `${d.horasSolucion ?? 0} h de ${d.horasDisponibles} h disponibles`,
+
+    grafica: Velocimetro,
   },
   {
-    id: "atencion-de-soporte-funcional",
+    id: "soporte-funcional",
     nombre: "Atención de soporte funcional",
-    resultado: 85,
+    resultado: null,
+    estado: "sin_datos",
     meta: 83.33,
     unidad: "%",
     operador: ">=",
@@ -49,10 +57,11 @@ export const kpisSistemasInformacion: Kpi[] = [
     fuente: "PRISMA",
     formula:
       "solicitudes de soporte a la operacion atendida/ solicitudes de soporte a la operacion recibidad x 100",
-    nota: 'Tickets con etiqueta "Solicitud de soporte" y resueltos dentro del SLA.',
-    apoyo: {
-      etiqueta: "Solicitudes del período",
-      valor: "41 atendidas de 46 recibidas",
-    },
+    nota: 'Tickets con etiqueta "Solicitud de soporte"',
+    apoyo: { etiqueta: "Solicitudes del período", valor: "—" },
+
+    textoApoyo: (d) => `${d.atendidos} atendidas de ${d.recibidos} recibidas`,
+
+    grafica: Velocimetro,
   },
 ];

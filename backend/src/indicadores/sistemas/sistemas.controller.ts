@@ -1,74 +1,44 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { SistemasService } from './sistemas.service.js';
-import { FiltrosKpi } from '../comun/filtros-kpi.js';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { validarFiltros } from '../comun/filtros-kpi.js';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ApiFiltrosKpi } from '../comun/api-filtros-kpi.decorator.js';
-const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
-@ApiTags('Indicadores · Sistemas')
+@ApiTags('Indicadores · Sistemas de Información')
 @Controller('indicadores/sistemas')
 export class SistemasController {
   constructor(private readonly sistemasService: SistemasService) {}
 
   @ApiOperation({
-    summary: 'Ateción de Soporte Funcional',
+    summary: 'Todas las métricas de Sistemas de Información',
     description:
-      'Contabilizar los requerimientos de soporte recibidos. Meta: ≥ 83.33%.',
+      'Devuelve en una sola respuesta las métricas del dashboard de Sistemas de Información.',
   })
   @ApiFiltrosKpi()
-  @Get('soporte')
-  soporte(
+  @ApiQuery({
+    name: 'etiqueta',
+    required: false,
+    type: Number,
+    description: 'Id de una etiqueta del equipo de Sistemas.',
+  })
+  @Get()
+  async todas(
     @Query('desde') desde?: string,
     @Query('hasta') hasta?: string,
     @Query('usuario') usuario?: string,
+    @Query('etiqueta') etiqueta?: string,
   ) {
-    return this.sistemasService.soporte(
-      this.validarFiltros(desde, hasta, usuario),
-    );
-  }
-
-  @ApiOperation({
-    summary: 'Disponibilidad de servicios críticos',
-    description:
-      'Medir el correcto funcionamiento por horas laborales. Meta: >= 95% .',
-  })
-  @ApiFiltrosKpi()
-  @Get('dispo-servicios-criticos')
-  disponibilidad(
-    @Query('desde') desde?: string,
-    @Query('hasta') hasta?: string,
-    @Query('usuario') usuario?: string,
-  ) {
-    return this.sistemasService.disponibilidad(
-      this.validarFiltros(desde, hasta, usuario),
-    );
-  }
-
-  private validarFiltros(
-    desde?: string,
-    hasta?: string,
-    usuario?: string,
-  ): FiltrosKpi {
-    if (
-      !desde ||
-      !hasta ||
-      !FORMATO_FECHA.test(desde) ||
-      !FORMATO_FECHA.test(hasta)
-    ) {
-      throw new BadRequestException(
-        'Los parámetros "desde" y "hasta" son obligatorios, con formato AAAA-MM-DD.',
-      );
-    }
-    if (usuario !== undefined && !Number.isInteger(Number(usuario))) {
-      throw new BadRequestException(
-        'El parámetro "usuario" debe ser un número.',
-      );
+    const idEtiqueta = etiqueta === undefined ? undefined : Number(etiqueta);
+    if (idEtiqueta !== undefined) {
+      const etiquetas = await this.sistemasService.etiquetas();
+      if (!etiquetas.some((e) => e.id === idEtiqueta)) {
+        throw new BadRequestException('El parametro "etiqueta" no es válido');
+      }
     }
 
-    return {
-      desde,
-      hasta,
-      usuario: usuario === undefined ? undefined : Number(usuario),
-    };
+    return this.sistemasService.todas({
+      ...validarFiltros(desde, hasta, usuario),
+      etiqueta: idEtiqueta,
+    });
   }
 }

@@ -2,34 +2,96 @@ import MenuLateral from "./components/MenuLateral/MenuLateral.tsx";
 import BarraSuperior from "./components/BarraSuperior/BarraSuperior.tsx";
 import PageDesarrollo from "./components/Desarrollo/PageDesarrollo.tsx";
 import PageSistemasInformacion from "./components/SistemasInformacion/PageSistemasInformacion.tsx";
-import { useState } from "react";
-import Login from "./components/Login/Login.tsx";
+import PageListo from "./components/Listo/PageListo.tsx";
+import { useState, useEffect } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router";
+import {
+  type Periodo,
+  periodoMesActual,
+  type Usuario,
+  type Etiqueta,
+} from "./Services/IndicadoresApi.ts";
+
+import type { FiltrosPagina } from "./components/Filtros/FiltrosComunes.tsx";
+
 import "./App.css";
+import PageProcesos from "./components/Procesos/PageProcesos.tsx";
 
 function App() {
-  const [sesionIniciada, setSesionIniciada] = useState(false);
-  const [areaActiva, setAreaActiva] = useState("Desarrollo");
-  if (!sesionIniciada) {
-    return <Login alIniciarSesion={() => setSesionIniciada(true)} />;
-  }
+  const [periodo, setPeriodo] = useState<Periodo>(periodoMesActual());
+  const [usuario, setUsuario] = useState<string | null>(null);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [estado, setEstado] = useState<string | null>(null);
+  const [etiqueta, setEtiqueta] = useState<string | null>(null);
+  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
+  const { pathname } = useLocation();
 
-  function mostrarPantalla() {
-    if (areaActiva === "Desarrollo") return <PageDesarrollo />;
-    if (areaActiva === "Sistemas de Información")
-      return <PageSistemasInformacion />;
+  useEffect(() => {
+    setUsuario(null);
+    setEstado(null);
+    setEtiqueta(null);
+    setEtiquetas([]);
+  }, [pathname]);
 
-    return (
-      <p className="app-en-construccion">
-        Indicadores de {areaActiva} en construcción
-      </p>
-    );
-  }
+  const filtros: FiltrosPagina = {
+    periodo,
+    usuario,
+    alRecibirUsuarios: setUsuarios,
+  };
+
   return (
     <div className="app">
-      <MenuLateral areaActiva={areaActiva} alCambiarArea={setAreaActiva} />
+      <MenuLateral />
       <div className="app-principal">
-        <BarraSuperior />
-        <main className="app-contenido">{mostrarPantalla()}</main>
+        <BarraSuperior
+          periodo={periodo}
+          alCambiarPeriodo={setPeriodo}
+          usuario={usuario}
+          usuarios={usuarios}
+          alCambiarUsuario={setUsuario}
+          estado={estado}
+          alCambiarEstado={setEstado}
+          mostrarEstado={pathname === "/listo"}
+          etiqueta={etiqueta}
+          etiquetas={etiquetas}
+          alCambiarEtiqueta={setEtiqueta}
+          mostrarEtiqueta={
+            pathname === "/desarrollo" || pathname === "/sistemas"
+          }
+          tituloEtiqueta={pathname === "/sistemas" ? "Etiqueta" : "Proyecto"}
+        />
+        <main className="app-contenido">
+          <Routes>
+            <Route
+              path="/desarrollo"
+              element={
+                <PageDesarrollo
+                  {...filtros}
+                  etiqueta={etiqueta}
+                  alRecibirEtiquetas={setEtiquetas}
+                />
+              }
+            />
+            <Route
+              path="/sistemas"
+              element={
+                <PageSistemasInformacion
+                  {...filtros}
+                  etiqueta={etiqueta}
+                  alRecibirEtiquetas={setEtiquetas}
+                />
+              }
+            />
+
+            <Route path="/procesos" element={<PageProcesos {...filtros} />} />
+            <Route
+              path="/listo"
+              element={<PageListo {...filtros} estado={estado} />}
+            />
+            <Route path="/" element={<Navigate to="/desarrollo" replace />} />
+            <Route path="*" element={<p>Página no encontrada</p>} />
+          </Routes>
+        </main>
       </div>
     </div>
   );
